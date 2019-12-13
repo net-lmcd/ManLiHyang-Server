@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: dev
+#Server Port
+server:
+  port: 8888
