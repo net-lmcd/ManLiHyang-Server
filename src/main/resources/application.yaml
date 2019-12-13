@@ -1,0 +1,28 @@
+
+#Server Port
+server:
+  port: 8888
+#MariaDB
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://manlihyang-db.cd6vxybho2nc.ap-northeast-2.rds.amazonaws.com:3306/ManLiHyang
+    username: root
+    password: dkwmfrjdns1!
+
+---
+
+#Server Port
+#server:
+#  port: 8888
+
+#MariaDB
+#spring:
+#  datasource:
+#    driver-class-name: org.mariadb.jdbc.Driver
+#    url: jdbc:mariadb://localhost:3306/ManLiHyang
+#    username: root
+#    password: taejun1234!
+
