@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/board")
@@ -17,13 +16,13 @@ public class BoardController {
 
     //게시물 조회 ( 전체 )
     @GetMapping("")
-    public ArrayList<Board> board_read( ) {
+    public ArrayList<Board> board_read() {
         return boardService.ReadBoards();
     }
 
     //특정 게시물 상세조회
     @GetMapping("/{id}")
-    public void board_read_detail(@PathVariable("id") String board_id){
+    public void board_read_detail(@PathVariable("id") String board_id) {
 
     }
 

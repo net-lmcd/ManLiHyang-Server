@@ -1,8 +1,8 @@
 package com.project.manlihyang.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 /**
  * Copyright 2019 NET-LMCD Corp. All rights Reserved.
@@ -11,26 +11,30 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /*
  * Response 기본 객체
  */
+@Setter
+@Getter
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ResponseData<T> {
     /**
-     * timestamp
+     * TIMESTAMP
      */
     @JsonProperty("timestamp")
     private long timeStamp;
     /**
-     * service code - AppConst.[SERVICE_NAME]
+     * SERVICE CODE - AppConst.[SERVICE_NAME]
      */
-    @JsonProperty("serviceCode")
+    @JsonProperty("service_code")
     private int serviceCode;
     /**
-     * message
+     * MESSAGE
      */
     @JsonProperty("message")
     private String message;
     /**
-     * response data
+     * RESPONSE DATA
      */
     @JsonProperty("data")
     private T data;

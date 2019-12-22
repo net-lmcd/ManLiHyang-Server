@@ -1,7 +1,7 @@
 package com.project.manlihyang.board.repository;
 
 import com.project.manlihyang.board.domain.Board;
-import lombok.Generated;
+
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
