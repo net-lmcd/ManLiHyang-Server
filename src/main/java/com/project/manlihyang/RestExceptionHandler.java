@@ -2,7 +2,10 @@ package com.project.manlihyang;
 
 
 import com.project.manlihyang.common.ErrorResponse;
+import com.project.manlihyang.common.exception.NoServiceException;
+import com.project.manlihyang.user.exception.CreateUserFailedException;
 import com.project.manlihyang.user.exception.NoEmailException;
+import com.project.manlihyang.user.exception.NoMemberException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -18,19 +21,21 @@ import java.util.Date;
 @RestControllerAdvice
 public class RestExceptionHandler
 {
-    /*
-    @ExceptionHandler({AvatarExtractServerErrorException.class, RequestFullException.class, ZKException.class})
-    protected ResponseEntity<ErrorResponse> handleServerException(Exception re) {
-        ErrorResponse errorResponse = getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, re.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-    }*/
 
     @ExceptionHandler(value = NoEmailException.class)
-    protected ResponseEntity<ErrorResponse> handleServerException(Exception re) {
+    protected ResponseEntity<ErrorResponse> handle400Exception(Exception re) {
         ErrorResponse errorResponse = getErrorResponse(HttpStatus.BAD_REQUEST, re.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(errorResponse);
     }
+
+    @ExceptionHandler({CreateUserFailedException.class, NoMemberException.class, NoServiceException.class})
+    protected ResponseEntity<ErrorResponse> handle500Exception(Exception re) {
+        ErrorResponse errorResponse = getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, re.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
+    }
+
 
     private ErrorResponse getErrorResponse(HttpStatus httpStatus, String message) {
         return ErrorResponse.builder()
