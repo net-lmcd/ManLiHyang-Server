@@ -1,34 +1,49 @@
 package com.project.manlihyang.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 import java.sql.Timestamp;
+import lombok.*;
 
-@Setter @Getter @Builder @AllArgsConstructor
+@Setter
+@Getter
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class User {
     /**
      * id, AUTO INCR
      */
     @JsonProperty("id")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int id;
+    /**
+     * USER 식별자, randomly generated UUID 256-bit
+     */
+    @JsonProperty("usn")
+    private String usn;
     /**
      * USERNAME
      */
+    @NotEmpty(message = "이름을 확인해주세요.")
     @JsonProperty("username")
     private String username;
     /**
      * EMAIL (USER ID로 사용)
      */
+    @NotEmpty(message = "이메일을 확인해주세요.")
+    @Email
     @JsonProperty("email")
     private String email;
     /**
      * PASSWORD
      */
     @JsonProperty("password")
+    @Size(min = 8, max = 24,message="8자이상 24자미만으로 작성해야 합니다.")
     private String password;
     /**
      * CREATED_AT TIMESTAMP

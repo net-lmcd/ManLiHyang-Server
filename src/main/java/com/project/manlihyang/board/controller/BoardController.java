@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/board")
@@ -48,4 +47,3 @@ public class BoardController {
     //댓글 삭제
 
     //댓글 수정
-}
