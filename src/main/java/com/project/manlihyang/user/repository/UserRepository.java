@@ -17,4 +17,16 @@ public interface UserRepository {
     @Select("SELECT EXISTS (SELECT email FROM user WHERE email=#{email})")
     boolean isExistsEmail(@Param("email") String email);
 
+    /**
+        USER 생성
+     */
+    @Insert("INSERT INTO user (usn, username, email, password, notice, notice_chat)  " +
+            "VALUES (#{usn}, #{username}, #{email}, #{password}, #{notice}, #{noticeChat}) ")
+    int insertNewUser(User user);
+
+    /**
+        USER 조회
+     */
+    @Select("SELECT * FROM USER WHERE usn=#{usn}")
+    User selectUserByUsn(@Param("usn") String usn);
 }
