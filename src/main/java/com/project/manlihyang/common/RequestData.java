@@ -1,27 +1,40 @@
 package com.project.manlihyang.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
-import lombok.Getter;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import lombok.*;
 
 /**
  * 기본 RequestData Format
  */
+@Setter
 @Getter
-@Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RequestData {
-    @NotBlank
-    @JsonProperty("serviceCode")
+    /**
+     * SERVICE CODE - AppConst.[SERVICE_NAME]
+     */
+    @JsonProperty("service_code")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int serviceCode;
-    @NotBlank
+    /**
+     * USER 식별자, randomly generated UUID
+     */
     @JsonProperty("usn")
-    private long usn;
+    private String usn;
+    /**
+     * EMAIL
+     */
+    @Email
     @JsonProperty("email")
     private String email;
+    /**
+     * NICKNAME
+     */
     @JsonProperty("nickname")
     private String nickname;
 }
