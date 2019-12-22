@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/Board")
+@RequestMapping("/board")
 public class BoardController {
 
     @Autowired
@@ -47,4 +47,3 @@ public class BoardController {
     //댓글 삭제
 
     //댓글 수정
-}
