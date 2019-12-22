@@ -16,13 +16,13 @@ public class BoardController {
 
     //게시물 조회 ( 전체 )
     @GetMapping("")
-    public ArrayList<Board> board_read( ) {
+    public ArrayList<Board> board_read() {
         return boardService.ReadBoards();
     }
 
     //특정 게시물 상세조회
     @GetMapping("/{id}")
-    public void board_read_detail(@PathVariable("id") String board_id){
+    public void board_read_detail(@PathVariable("id") String board_id) {
 
     }
 
@@ -47,3 +47,4 @@ public class BoardController {
     //댓글 삭제
 
     //댓글 수정
+}

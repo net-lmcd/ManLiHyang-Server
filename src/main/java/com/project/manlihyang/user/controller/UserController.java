@@ -1,47 +1,79 @@
 package com.project.manlihyang.user.controller;
 
+import com.project.manlihyang.user.exception.NoMemberException;
+
+import com.project.manlihyang.util.LogHelper;
 import com.project.manlihyang.BaseController;
 import com.project.manlihyang.common.RequestData;
+import com.project.manlihyang.user.UserConst;
 import com.project.manlihyang.user.domain.User;
-import com.project.manlihyang.user.exception.NoEmailException;
 import com.project.manlihyang.user.service.UserService;
+;
+
 import com.project.manlihyang.util.Validator;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@AllArgsConstructor
+@RequestMapping("/users")
 @CrossOrigin("*")
 public class UserController extends BaseController {
-    private Validator validator;
-    private UserService user;
+    private final UserService userService;
+    private final LogHelper logHelper;
+    private final Validator validator;
+    public UserController(UserService userService, LogHelper logHelper, Validator validator) {
+        this.userService = userService;
+        this.logHelper = logHelper;
+        this.validator = validator;
+    }
 
-    @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    /**
+     * 유저 생성 API
+     * 성공 - 201 created, Header - [Location, http://{address}/user/{usn}] 추가
+     */
+    @PostMapping("")
+    public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
+        logHelper.printPrettyWithObjMapper(user);
+        String usn =  userService.createNewUser(user);
+        return usn != "-1"
+                ? ResponseEntity.created(ServletUriComponentsBuilder
+                                    .fromCurrentRequest().path("/{usn}")
+                                    .buildAndExpand(usn).toUri()) /* Location /users/{usn} */
+                                .body(successResponseU())
+                : ResponseEntity.status(500)
+                                .body(failedResponseU(UserConst.FAILED_CREATE_USER));
+    }
 
-        return null;
+    /**
+     * 유저 조회 API
+     * @param usn 유저 식별자
+     */
+    @GetMapping("/{service-code}/{usn}")
+    public ResponseEntity<?> searchUserByUsn(@PathVariable("service-code") int code,
+                                             @PathVariable("usn") String usn) {
+        userService.filterCode(code);
+        User user = Optional.ofNullable(userService.searchUser(usn))
+                            .orElseThrow(NoMemberException::new);
+        return ResponseEntity.ok(user);
     }
 
     /**
      * email 중복 검사
      * @param request
-     * @return
+     * email 존재시 409
      */
-    @PostMapping("/users/confirm")
-    public ResponseEntity<?> confirmIsValidEmail(@RequestBody RequestData request) {
-        Optional.ofNullable(request.getEmail())
-                .orElseThrow(NoEmailException::new);
-
-        boolean isExists = user.checkIsExistsEmail(request.getEmail()); // 존재하는 email 인지 체크
-
-        if (isExists) {
-            return ResponseEntity.ok(successResponseU());
-        }
-        // TODO Failed Response 추가
-        return ResponseEntity.status(409).build();
+    @PostMapping("/confirm")
+    public ResponseEntity<?> confirmIsValidEmail(@RequestBody @Valid RequestData request) {
+        logHelper.printPrettyWithObjMapper(request);
+        userService.filterEmailAndCode(request);
+        return !userService.checkIsExistsEmail(request.getEmail())
+                ? ResponseEntity.ok(successResponseU())
+                : ResponseEntity.status(409)
+                             .body(failedResponseU(UserConst.EMAIL_EXISTS));
     }
 
 }
