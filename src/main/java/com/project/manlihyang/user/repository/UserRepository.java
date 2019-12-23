@@ -27,6 +27,6 @@ public interface UserRepository {
     /**
         USER 조회
      */
-    @Select("SELECT * FROM USER WHERE usn=#{usn}")
+    @Select("SELECT * FROM user WHERE usn=#{usn}")
     User selectUserByUsn(@Param("usn") String usn);
 }
