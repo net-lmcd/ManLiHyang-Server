@@ -1,6 +1,7 @@
 package com.project.manlihyang.user.service;
 
 import com.project.manlihyang.common.RequestData;
+import com.project.manlihyang.user.UserConst;
 import com.project.manlihyang.user.domain.User;
 import com.project.manlihyang.user.exception.NoEmailException;
 import com.project.manlihyang.user.repository.UserRepository;
@@ -85,6 +86,21 @@ public class UserService {
         validator.checkValidUserCode(data);
         Optional.ofNullable(data.getEmail())
                 .orElseThrow(NoEmailException::new);
+    }
+
+    /**
+     * USER 삭제
+     * @param usn usn
+     * @return true / false
+     */
+    public boolean removeUserByUsn(String usn) {
+        try {
+            if (!repo.deleteUser(usn))
+                log.warn("[UserService] " + UserConst.NO_DELETE_USER_MATCHED);
+        } catch (Exception e) {
+            log.error("[UserService] removeUserByUsn() ERROR : " + e.getMessage());
+        }
+        return false;
     }
 
     /**
