@@ -14,11 +14,20 @@ public class BoardService {
     private BoardRepository boardDao;
 
     //list
-    public ArrayList<Board> ReadBoards( ) {
-        return boardDao.ReadBoards();
+    public ArrayList<Board> ReadBoardsService( ) {
+        return boardDao.ReadBoardsRepo();
     }
 
-    public int CreateBoard(Board board) {
-        return boardDao.CreateBoard(board);
+    public Board ReadBoardDetailService(int board_id) {
+        return boardDao.ReadBoardDetailRepo(board_id);
+    }
+
+    public int CreateBoardService(Board board) {
+        return boardDao.CreateBoardRepo(board);
     };
+    public int UpdateBoardService(Board board){ return boardDao.UpdateBoardRepo(board); };
+    public int DeleteBoardService(int board_id) { return boardDao.DeleteBoardRepo(board_id); };
+
+    //좋아요 / 취소
+    public int UpdateBoardLikeService(int id, int likes) { return boardDao.UpdateBoardLikeRepo(id, likes);}
 }
