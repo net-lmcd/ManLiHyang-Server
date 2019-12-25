@@ -99,10 +99,27 @@ public class UserService {
                 log.warn("[UserService] " + UserConst.NO_DELETE_USER_MATCHED);
         } catch (Exception e) {
             log.error("[UserService] removeUserByUsn() ERROR : " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * USER INFO UPDATE
+     * @param user User
+     * @return true / false
+     */
+    public boolean updateUserInfoByUsn(String usn, User user) {
+        try {
+            if (repo.updateUserInfo(usn, user)) {
+                return true;
+            } else {
+                log.warn("[UserService] updateUserInfoByUsn() WARN, [USN] = " + usn + ", [CAUSE] = " + UserConst.NO_MEMBER);
+            }
+        } catch (Exception e) {
+            log.error("[UserService] updateUserInfoByUsn() ERROR : " + e.getMessage());
         }
         return false;
     }
-
     /**
      * USER USN 생성
      * @return USN to String

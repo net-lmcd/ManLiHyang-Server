@@ -11,6 +11,8 @@ import com.project.manlihyang.user.service.UserService;
 ;
 
 import com.project.manlihyang.util.Validator;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -19,6 +21,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @CrossOrigin("*")
@@ -90,6 +93,18 @@ public class UserController extends BaseController {
                 ? ResponseEntity.ok(successResponseU())
                 : ResponseEntity.status(500)
                                 .body(failedResponseU(UserConst.FAILED_DELETE_USER));
+    }
+
+    @PutMapping("/{service-code}/{usn}")
+    public ResponseEntity<?> updateUserByUsnAPI(@PathVariable("service-code") int code,
+                                                @PathVariable("usn") @NotNull String usn,
+                                                @RequestBody @Valid User user) {
+        log.info("[PUT] /users/" + code + "/" + usn + " updateUserByUsnAPI() \n [REQUEST BODY] \n" + logHelper.convertToString(user));
+        userService.filterCode(code);
+        return userService.updateUserInfoByUsn(usn, user) == true
+                ? ResponseEntity.ok(successResponseU())
+                : ResponseEntity.status(500)
+                                .body(failedResponseU(UserConst.FAILED_UPDATE_USER));
     }
 }
 
