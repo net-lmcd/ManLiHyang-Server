@@ -1,10 +1,7 @@
 package com.project.manlihyang.user.repository;
 
 import com.project.manlihyang.user.domain.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 @Mapper
@@ -27,6 +24,12 @@ public interface UserRepository {
     /**
         USER 조회
      */
-    @Select("SELECT * FROM USER WHERE usn=#{usn}")
+    @Select("SELECT * FROM user WHERE usn=#{usn}")
     User selectUserByUsn(@Param("usn") String usn);
+
+    /**
+        USER 삭제
+     */
+    @Delete("DELETE FROM user WHERE usn=#{usn}")
+    boolean deleteUser(@Param("usn") String usn);
 }
