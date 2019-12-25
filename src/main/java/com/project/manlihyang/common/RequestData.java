@@ -7,7 +7,7 @@ import javax.validation.constraints.Email;
 import lombok.*;
 
 /**
- * 기본 RequestData Format
+ * 기본 RequestData Format, POST
  */
 @Setter
 @Getter

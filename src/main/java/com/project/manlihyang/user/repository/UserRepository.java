@@ -17,8 +17,10 @@ public interface UserRepository {
     /**
         USER 생성
      */
-    @Insert("INSERT INTO user (usn, username, email, password, notice, notice_chat)  " +
-            "VALUES (#{usn}, #{username}, #{email}, #{password}, #{notice}, #{noticeChat}) ")
+    @Insert("INSERT INTO user " +
+            "(usn, username, email, password, notice, notice_chat) " +
+            "VALUES " +
+            "(#{usn}, #{username}, #{email}, #{password}, #{notice}, #{noticeChat}) ")
     int insertNewUser(User user);
 
     /**

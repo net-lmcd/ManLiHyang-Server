@@ -39,9 +39,11 @@ public class UserController extends BaseController {
      * 유저 생성 API
      * 성공 - 201 created, Header - [Location, http://{address}/user/{usn}] 추가
      */
-    @PostMapping("")
-    public ResponseEntity<?> createUserAPI(@RequestBody @Valid User user) {
-        logHelper.printPrettyWithObjMapper(user);
+    @PostMapping("/{service-code}")
+    public ResponseEntity<?> createUserAPI(@PathVariable("service-code") int code,
+                                           @RequestBody @Valid User user) {
+        log.info("[POST] /users/" + code + "/" + " createUserAPI() \n [REQUEST BODY] \n" + logHelper.convertToString(user));
+        userService.filterCode(code);
         String usn =  userService.createNewUser(user);
         return usn != "-1"
                 ? ResponseEntity.created(ServletUriComponentsBuilder
@@ -59,6 +61,7 @@ public class UserController extends BaseController {
     @GetMapping("/{service-code}/{usn}")
     public ResponseEntity<?> searchUserByUsnAPI(@PathVariable("service-code") int code,
                                              @PathVariable("usn") @NotNull String usn) {
+        log.info("[GET] /users/" + code + "/" + usn + " searchUserByUsnAPI()");
         userService.filterCode(code);
         User user = Optional.ofNullable(userService.searchUser(usn))
                             .orElseThrow(NoMemberException::new);
@@ -72,7 +75,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmIsValidEmailAPI(@RequestBody @Valid RequestData request) {
-        logHelper.printPrettyWithObjMapper(request);
+        log.info("[POST] /users/confirm" +" confirmIsValidEmailAPI() \n [REQUEST BODY] \n" + logHelper.convertToString(request));
         userService.filterEmailAndCode(request);
         return !userService.checkIsExistsEmail(request.getEmail())
                 ? ResponseEntity.ok(successResponseU())
@@ -88,6 +91,7 @@ public class UserController extends BaseController {
     @DeleteMapping("/{service-code}/{usn}")
     public ResponseEntity<?> removeUserByUsnAPI(@PathVariable("service-code") int code,
                                                 @PathVariable("usn") @NotNull String usn) {
+        log.info("[DELETE] /users/" + code + "/" + usn + " removeUserByUsnAPI()");
         userService.filterCode(code);
         return userService.removeUserByUsn(usn) == true
                 ? ResponseEntity.ok(successResponseU())

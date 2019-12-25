@@ -32,6 +32,9 @@ public class UserService {
         boolean isExists = false;
         try {
             isExists = repo.isExistsEmail(email);
+            if (isExists) {
+                log.warn("[UserService] checkIsExistsEmail() WARN, [EMAIL] = " + email + ", [CAUSE] = " + UserConst.EMAIL_EXISTS);
+            }
         } catch (Exception e) {
             log.error("[UserService] checkIsExistsEmail() ERROR : " + e.getMessage());
         }
@@ -64,6 +67,9 @@ public class UserService {
         User user = null;
         try {
             user = repo.selectUserByUsn(usn);
+            if (user == null) {
+                log.warn("[UserService] searchUser() WARN, [USN] = " + usn + ", [CAUSE] = " + UserConst.NO_MEMBER);
+            }
         } catch (Exception e) {
             log.error("[UserService] searchUser() ERROR : " + e.getMessage());
         }
@@ -95,8 +101,13 @@ public class UserService {
      */
     public boolean removeUserByUsn(String usn) {
         try {
-            if (!repo.deleteUser(usn))
-                log.warn("[UserService] " + UserConst.NO_DELETE_USER_MATCHED);
+            if (repo.deleteUser(usn)) {
+                return true;
+            }
+            else {
+                log.warn("[UserService] removeUserByUsn() WARN, [USN] = " + usn + ", [CAUSE] = " + UserConst.NO_DELETE_USER_MATCHED);
+                return false;
+            }
         } catch (Exception e) {
             log.error("[UserService] removeUserByUsn() ERROR : " + e.getMessage());
             return false;
