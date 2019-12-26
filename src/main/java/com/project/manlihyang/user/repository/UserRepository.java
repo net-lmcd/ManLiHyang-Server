@@ -17,8 +17,10 @@ public interface UserRepository {
     /**
         USER 생성
      */
-    @Insert("INSERT INTO user (usn, username, email, password, notice, notice_chat)  " +
-            "VALUES (#{usn}, #{username}, #{email}, #{password}, #{notice}, #{noticeChat}) ")
+    @Insert("INSERT INTO user " +
+            "(usn, username, email, password, notice, notice_chat) " +
+            "VALUES " +
+            "(#{usn}, #{username}, #{email}, #{password}, #{notice}, #{noticeChat}) ")
     int insertNewUser(User user);
 
     /**
@@ -32,4 +34,19 @@ public interface UserRepository {
      */
     @Delete("DELETE FROM user WHERE usn=#{usn}")
     boolean deleteUser(@Param("usn") String usn);
+
+    /**
+        USER INFO 업데이트, 일괄 업뎃 적용
+     */
+    @Update("UPDATE USER " +
+            "SET " +
+            "username=#{user.username}, " +
+            "email=#{user.email}, " +
+            "notice=#{user.notice}, " +
+            "notice_chat=#{user.noticeChat}, " +
+            "profile_url=#{user.profileUrl}, " +
+            "is_blocked=#{user.isBlocked}, " +
+            "report_cnt=#{user.reportCnt} " +
+            "WHERE usn=#{usn}")
+    boolean updateUserInfo(@Param("usn") String usn, @Param("user") User user);
 }

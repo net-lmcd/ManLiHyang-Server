@@ -32,4 +32,13 @@ public class LogHelper {
             log.error("[ApiHelper] printPrettyWithObjMapper() ERROR : " + e.getMessage());
         }
     }
+
+    public <T> String convertToString(T data) {
+        try {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
+        } catch (JsonProcessingException e) {
+            log.error("[ApiHelper] convertToString() ERROR : " + e.getMessage());
+            return "[PARSED ERROR]";
+        }
+    }
 }
