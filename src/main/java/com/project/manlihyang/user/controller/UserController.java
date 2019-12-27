@@ -42,7 +42,7 @@ public class UserController extends BaseController {
     @PostMapping("/{service-code}")
     public ResponseEntity<?> createUserAPI(@PathVariable("service-code") int code,
                                            @RequestBody @Valid User user) {
-        log.info("[POST] /users/" + code + "/" + " createUserAPI() \n [REQUEST BODY] \n" + logHelper.convertToString(user));
+        log.info("[POST] /users/" + code + " createUserAPI() \n [REQUEST BODY] \n" + logHelper.convertToString(user));
         userService.filterCode(code);
         String usn =  userService.createNewUser(user);
         return usn != "-1"
@@ -74,7 +74,7 @@ public class UserController extends BaseController {
      * email 존재시 409
      */
     @PostMapping("/confirm")
-    public ResponseEntity<?> confirmIsValidEmailAPI(@RequestBody @Valid RequestData request) {
+    public ResponseEntity<?> confirmIsValidEmailAPI(@RequestBody RequestData request) {
         log.info("[POST] /users/confirm" +" confirmIsValidEmailAPI() \n [REQUEST BODY] \n" + logHelper.convertToString(request));
         userService.filterEmailAndCode(request);
         return !userService.checkIsExistsEmail(request.getEmail())
