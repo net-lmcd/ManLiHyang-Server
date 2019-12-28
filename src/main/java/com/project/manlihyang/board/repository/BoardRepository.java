@@ -11,37 +11,46 @@ import java.util.List;
 @Repository
 public interface BoardRepository {
 
+    //기능별로 Repo 분리?? board, comment, likes
+
     //게시물 전체 조회 ( group_seq = 1 인 경우만 게시물이고 1보다 클 경우는 게시물의 댓글을 의미한다. )
     @Select("SELECT * from board where group_seq = 1")
-    ArrayList<Board> ReadBoardsRepo();
+    ArrayList<Board> BoardsReadRepo();
 
     //게시물 상세조회
     @Select("SELECT * from board where id = ${id}")
-    Board ReadBoardDetailRepo(int board_id);
+    Board BoardReadDetailRepo(int board_id);
 
-    //게시물 삽입
+    //게시물 생성
     @Insert("INSERT INTO board (writer_id, title, content, img_url, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(${writer_id}, #{title}, #{content}, #{img_url}, ${report_cnt}, ${group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
     @Options(useGeneratedKeys=true)
-    int CreateBoardRepo(Board board);
+    int BoardCreateRepo(Board board);
 
     //게시물 수정
     @Update("UPDATE board set title=#{title}, content=#{content}, updated_time=#{updated_time} where id=${id}")
-    int UpdateBoardRepo(Board board);
+    int BoardUpdateRepo(Board board);
 
     // 게시물 삭제
     @Delete("DELETE FROM board where id = ${id}")
-    int DeleteBoardRepo(int board_id);
+    int BoardDeleteRepo(int board_id);
 
     //게시물 좋아요 누름"
     @Insert("Insert likes (board_id, liker_id) VALUES(${board_id}, ${liker_id})")
-    int CheckBoardLikeRepo(int board_id, int liker_id);
+    int BoardCheckLikeRepo(int board_id, int liker_id);
     //게시물 좋아요 취소
     @Delete("Delete from likes where board_id = ${board_id} && liker_id = ${liker_id}")
-    int CancelBoardLikeRepo(int board_id, int liker_id);
+    int BoardCancelLikeRepo(int board_id, int liker_id);
     //게시물 좋아요 횟수 및 누른 사람 리스트
     @Select("Select liker_id from likes where board_id = ${board_id}")
-    List<Integer> DetailBoardLikeRepo(int board_id);
+    List<Integer> BoardDetailLikeRepo(int board_id);
 
+    //게시물 신고하기
+    @Update("Update board set report_cnt = ${report_cnt} + 1 where id = ${board_id}")
+    int BoardReportRepo(int board_id, int report_cnt);
+
+    //5번 이상 신고된 게시물 삭제
+    @Delete("Delete from board where id = ${board_id}")
+    int BoardReportDelRepo(int board_id);
 
     //게시물의 댓글 조회
     @Select("SELECT * FROM board where group_id = ${id} && group_id != id")

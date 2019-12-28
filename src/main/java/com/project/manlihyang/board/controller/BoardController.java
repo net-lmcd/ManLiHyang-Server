@@ -115,7 +115,7 @@ public class BoardController {
     @GetMapping("")
     public ArrayList<Board> board_read( ) {
         logger.info("게시물 조회 ( 전체 )");
-        return boardService.ReadBoardsService();
+        return boardService.BoardsReadService();
     }
 
     //특정 게시물 상세조회 ( 게시물 상세조회 할때 댓글도 조회 되야되는지 ?)
@@ -123,15 +123,15 @@ public class BoardController {
     public Board board_read_detail(@PathVariable int board_id){
 
         logger.info("특정 게시물 상세조회");
-        return boardService.ReadBoardDetailService(board_id);
+        return boardService.BoardReadDetailService(board_id);
     }
 
-    //게시물 삽입
+    //게시물 생성
     @PostMapping("")
     public int board_insert(Board board, MultipartFile file) {
 
-        logger.info("게시물 삽입");
-        return boardService.CreateBoardService(board);
+        logger.info("게시물 생성");
+        return boardService.BoardCreateService(board);
     }
 
     //게시물 수정
@@ -146,7 +146,7 @@ public class BoardController {
         String now = time_format.format(date);
         board.setUpdated_time(now);
 
-        return boardService.UpdateBoardService(board);
+        return boardService.BoardUpdateService(board);
     }
 
     //게시물 삭제
@@ -154,7 +154,7 @@ public class BoardController {
     public int board_delete(@PathVariable int board_id) {
 
         logger.info("게시물 삭제");
-        return boardService.DeleteBoardService(board_id);
+        return boardService.BoardDeleteService(board_id);
     }
 
     //게시물 좋아요 누르기  liker_id는 현제 세션의 기본키값
@@ -164,7 +164,7 @@ public class BoardController {
                            @PathVariable("liker_id") int liker_id) {
 
         logger.info("게시물 좋아요");
-        return boardService.CheckBoardLikeService(board_id, liker_id);
+        return boardService.BoardCheckLikeService(board_id, liker_id);
     }
 
     //게시물 좋아요 취소
@@ -173,7 +173,7 @@ public class BoardController {
                                  @PathVariable("liker_id") int liker_id) {
 
         logger.info("게시물 좋아요 취소");
-        return boardService.CancelBoardLikeService(board_id, liker_id);
+        return boardService.BoardCancelLikeService(board_id, liker_id);
     }
 
     //게시물 좋아요 횟수 및 누른 유저 확인
@@ -181,7 +181,7 @@ public class BoardController {
     public LikeMeta board_like_detail(@PathVariable("board_id") int board_id){
 
         logger.info("게시물 좋아요 누른 횟수 및 유저 확인");
-        List<Integer> likerList = boardService.DetailBoardLikeService(board_id);
+        List<Integer> likerList = boardService.BoardDetailLikeService(board_id);
         LikeMeta likeMeta = LikeMeta.builder()
                             .like_cnt(likerList.size())
                             .likers(likerList)
@@ -191,11 +191,16 @@ public class BoardController {
 
 
     // 게시물 신고 하기
-    @PutMapping("/{board_id}/report/{report_cnt}")
-    public void board_report(@PathVariable("board_id") int id,
+    @PutMapping("/report/{board_id}/{report_cnt}")
+    public void board_report(@PathVariable("board_id") int board_id,
                             @PathVariable("report_cnt") int report_cnt) {
 
         logger.info("게시물 신고하기");
+
+        //해당 게시물 삭제
+        if(report_cnt == 5) boardService.BoardReportDelService(board_id);
+        else boardService.BoardReportService(board_id, report_cnt);
+
     }
 
     //댓글 조회
