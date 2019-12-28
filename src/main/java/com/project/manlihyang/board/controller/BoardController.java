@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.project.manlihyang.board.domain.Board;
+import com.project.manlihyang.board.domain.LikeMeta;
 import com.project.manlihyang.board.service.BoardService;
 import com.project.manlihyang.util.Const;
 import org.apache.commons.io.FileUtils;
@@ -156,17 +157,37 @@ public class BoardController {
         return boardService.DeleteBoardService(board_id);
     }
 
-    //게시물 좋아요 누르기/취소
-    @PutMapping("/{board_id}/likes/{likes_cnt}")
-    public int board_likes(@PathVariable("board_id") int id,
-                           @PathVariable("likes_cnt") int likes) {
+    //게시물 좋아요 누르기  liker_id는 현제 세션의 기본키값
+    // 유저가 해당 게시물을 눌른 상태면 취소되게, 안눌른 상태면 눌리게 해야됨 ( client에서 처리 )
+    @PostMapping("/like/{board_id}/{liker_id}")
+    public int board_likes(@PathVariable("board_id") int board_id,
+                           @PathVariable("liker_id") int liker_id) {
 
-        // 좋아요 누가 눌럿는지 보여줘야되나?? -> mongodb
-        logger.info("게시물 좋아요/취소");
-        return boardService.UpdateBoardLikeService(id, likes);
+        logger.info("게시물 좋아요");
+        return boardService.CheckBoardLikeService(board_id, liker_id);
+    }
+
+    //게시물 좋아요 취소
+    @DeleteMapping("/like/{board_id}/{liker_id}")
+    public int board_like_cancel(@PathVariable("board_id") int board_id,
+                                 @PathVariable("liker_id") int liker_id) {
+
+        logger.info("게시물 좋아요 취소");
+        return boardService.CancelBoardLikeService(board_id, liker_id);
     }
 
     //게시물 좋아요 횟수 및 누른 유저 확인
+    @GetMapping("/like/{board_id}")
+    public LikeMeta board_like_detail(@PathVariable("board_id") int board_id){
+
+        logger.info("게시물 좋아요 누른 횟수 및 유저 확인");
+        List<Integer> likerList = boardService.DetailBoardLikeService(board_id);
+        LikeMeta likeMeta = LikeMeta.builder()
+                            .like_cnt(likerList.size())
+                            .likers(likerList)
+                            .build();
+        return likeMeta;
+    }
 
 
     // 게시물 신고 하기

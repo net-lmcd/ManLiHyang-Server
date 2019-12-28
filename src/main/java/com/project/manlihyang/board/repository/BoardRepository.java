@@ -1,13 +1,11 @@
 package com.project.manlihyang.board.repository;
 
 import com.project.manlihyang.board.domain.Board;
-import com.project.manlihyang.board.domain.Comment;
-import lombok.Generated;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Mapper
 @Repository
@@ -22,7 +20,7 @@ public interface BoardRepository {
     Board ReadBoardDetailRepo(int board_id);
 
     //게시물 삽입
-    @Insert("INSERT INTO board (writer_id, title, content, img_url, likes, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(${writer_id}, #{title}, #{content}, #{img_url}, ${likes}, ${report_cnt}, ${group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
+    @Insert("INSERT INTO board (writer_id, title, content, img_url, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(${writer_id}, #{title}, #{content}, #{img_url}, ${report_cnt}, ${group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
     @Options(useGeneratedKeys=true)
     int CreateBoardRepo(Board board);
 
@@ -34,9 +32,16 @@ public interface BoardRepository {
     @Delete("DELETE FROM board where id = ${id}")
     int DeleteBoardRepo(int board_id);
 
-    //게시물 좋아요/취소
-    @Update("Update board set likes = ${likes} where id = ${id}")
-    int UpdateBoardLikeRepo(int id, int likes);
+    //게시물 좋아요 누름"
+    @Insert("Insert likes (board_id, liker_id) VALUES(${board_id}, ${liker_id})")
+    int CheckBoardLikeRepo(int board_id, int liker_id);
+    //게시물 좋아요 취소
+    @Delete("Delete from likes where board_id = ${board_id} && liker_id = ${liker_id}")
+    int CancelBoardLikeRepo(int board_id, int liker_id);
+    //게시물 좋아요 횟수 및 누른 사람 리스트
+    @Select("Select liker_id from likes where board_id = ${board_id}")
+    List<Integer> DetailBoardLikeRepo(int board_id);
+
 
     //게시물의 댓글 조회
     @Select("SELECT * FROM board where group_id = ${id} && group_id != id")
@@ -49,11 +54,10 @@ public interface BoardRepository {
 
     //댓글을 달기 위한 자리 마련 ( seq를 하나씩 뒤로 민다. )
     @Update("UPDATE board set group_seq = ${group_seq} + 1 where group_id = ${group_id} and group_seq > ${group_seq}")
-    int UpdateBoardCommentGroupSeqRepo(Comment comment);
+    int UpdateBoardCommentGroupSeqRepo(Board comment);
     //댓글 달기
-    @Insert("INSERT INTO board (writer_id, content, likes, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(${writer_id}, #{content}, ${likes}, ${report_cnt}, ${group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
-    int CreateBoardCommentRepo(Comment comment);
-
+    @Insert("INSERT INTO board (writer_id, content, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(${writer_id}, #{content}, ${report_cnt}, ${group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
+    int CreateBoardCommentRepo(Board comment);
 
     //게시물 댓글 수정
 
