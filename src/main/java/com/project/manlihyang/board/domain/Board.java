@@ -14,7 +14,6 @@ public class Board {
     String title; // 게시물 제목
     String content; // 게시물 내용
     String img_url; // 이미지 경로
-    int likes; // 종아요 갯수
     int report_cnt; // 신고 갯수
     int group_id; // 게시물 그룹 id
     int group_seq; // 해당 그룹 내에서 순서
