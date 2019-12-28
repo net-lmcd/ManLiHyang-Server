@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -114,14 +113,7 @@ public class BoardController {
 
     //게시물 조회 ( 전체 )
     @GetMapping("")
-    public ArrayList<Board> board_read() {
-        return boardService.BoardsReadService();
-    }
-
-    //특정 게시물 상세조회
-    @GetMapping("/{id}")
-    public List<Board> board_read_detail(@PathVariable("id") String board_id) {
-
+    public ArrayList<Board> board_read( ) {
         logger.info("게시물 조회 ( 전체 )");
         return boardService.BoardsReadService();
     }
@@ -129,6 +121,7 @@ public class BoardController {
     //특정 게시물 상세조회 ( 게시물 상세조회 할때 댓글도 조회 되야되는지 ?)
     @GetMapping("/{board_id}")
     public Board board_read_detail(@PathVariable int board_id){
+
         logger.info("특정 게시물 상세조회");
         return boardService.BoardReadDetailService(board_id);
     }
@@ -159,7 +152,6 @@ public class BoardController {
     //게시물 삭제
     @DeleteMapping("/{board_id}")
     public int board_delete(@PathVariable int board_id) {
-
         logger.info("게시물 삭제");
         return boardService.BoardDeleteService(board_id);
     }
@@ -178,7 +170,6 @@ public class BoardController {
     @DeleteMapping("/like/{board_id}/{liker_id}")
     public int board_like_cancel(@PathVariable("board_id") int board_id,
                                  @PathVariable("liker_id") int liker_id) {
-
         logger.info("게시물 좋아요 취소");
         return boardService.BoardCancelLikeService(board_id, liker_id);
     }
@@ -207,7 +198,6 @@ public class BoardController {
         //해당 게시물 삭제 ( 5번 이상 신고된 게시물 삭제 )
         if(report_cnt == 5) boardService.BoardReportDelService(board_id);
         else boardService.BoardReportService(board_id, report_cnt);
-
     }
 
     //댓글 조회

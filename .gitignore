@@ -30,9 +30,6 @@ build/
 ### VS Code ###
 .vscode/
 application.yml
-<<<<<<< HEAD
-application-local.yml
-=======
 application-local.yml
 application-dev.yml
->>>>>>> tj-board
+
