@@ -152,7 +152,6 @@ public class BoardController {
     //게시물 삭제
     @DeleteMapping("/{board_id}")
     public int board_delete(@PathVariable int board_id) {
-
         logger.info("게시물 삭제");
         return boardService.BoardDeleteService(board_id);
     }
@@ -171,7 +170,6 @@ public class BoardController {
     @DeleteMapping("/like/{board_id}/{liker_id}")
     public int board_like_cancel(@PathVariable("board_id") int board_id,
                                  @PathVariable("liker_id") int liker_id) {
-
         logger.info("게시물 좋아요 취소");
         return boardService.BoardCancelLikeService(board_id, liker_id);
     }
@@ -197,10 +195,9 @@ public class BoardController {
 
         logger.info("게시물 신고하기");
 
-        //해당 게시물 삭제
+        //해당 게시물 삭제 ( 5번 이상 신고된 게시물 삭제 )
         if(report_cnt == 5) boardService.BoardReportDelService(board_id);
         else boardService.BoardReportService(board_id, report_cnt);
-
     }
 
     //댓글 조회
