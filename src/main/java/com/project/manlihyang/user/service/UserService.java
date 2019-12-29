@@ -88,8 +88,8 @@ public class UserService {
      * Email, service code 체크
      * @param data
      */
-    public void filterEmailAndCode(RequestData data) {
-        validator.checkValidUserCode(data);
+    public void filterEmailAndCode(int code, RequestData data) {
+        validator.checkValidUserServiceCode(code);
         Optional.ofNullable(data.getEmail())
                 .orElseThrow(NoEmailException::new);
     }
