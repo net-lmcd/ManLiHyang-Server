@@ -3,6 +3,7 @@ package com.project.manlihyang.board.service;
 import com.project.manlihyang.board.controller.BoardController;
 import com.project.manlihyang.board.domain.Board;
 import com.project.manlihyang.board.repository.BoardRepository;
+import com.project.manlihyang.util.ApiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ import java.util.UUID;
 public class BoardService {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
+
+    @Autowired
+    private ApiHelper apiHelper;
 
     @Autowired
     private BoardRepository boardDao;
@@ -38,6 +42,8 @@ public class BoardService {
             board.setBsn(bsn);
             board.setGroup_id(bsn); // 게시물 원본일 경우 group_id는 자기 자신
             boardDao.BoardCreateRepo(board);
+            board.setCreated_time(apiHelper.makeNowTimeStamp());
+            board.setUpdated_time(apiHelper.makeNowTimeStamp());
             return bsn;
         } catch (Exception e) {
             logger.error("[UserService] createNewUser() ERROR : " + e.getMessage());
@@ -46,12 +52,7 @@ public class BoardService {
 
     };
     public int BoardUpdateService(Board board){
-        //현재 시간
-        SimpleDateFormat time_format = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
-        String now = time_format.format(date);
-        board.setUpdated_time(now);
-
+        board.setUpdated_time(apiHelper.makeNowTimeStamp());
         return boardDao.BoardUpdateRepo(board);
     };
     public int BoardDeleteService(String bsn) { return boardDao.BoardDeleteRepo(bsn); };
