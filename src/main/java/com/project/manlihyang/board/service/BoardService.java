@@ -1,15 +1,23 @@
 package com.project.manlihyang.board.service;
 
+import com.project.manlihyang.board.controller.BoardController;
 import com.project.manlihyang.board.domain.Board;
 import com.project.manlihyang.board.repository.BoardRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class BoardService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     @Autowired
     private BoardRepository boardDao;
@@ -19,25 +27,44 @@ public class BoardService {
         return boardDao.BoardsReadRepo();
     }
 
-    public Board BoardReadDetailService(int board_id) {
-        return boardDao.BoardReadDetailRepo(board_id);
+    public Board BoardReadDetailService(String bsn) {
+        return boardDao.BoardReadDetailRepo(bsn);
     }
 
-    public int BoardCreateService(Board board) {
-        return boardDao.BoardCreateRepo(board);
+    public String BoardCreateService(Board board) {
+
+        String bsn = UUID.randomUUID().toString();
+        try {
+            board.setBsn(bsn);
+            board.setGroup_id(bsn); // 게시물 원본일 경우 group_id는 자기 자신
+            boardDao.BoardCreateRepo(board);
+            return bsn;
+        } catch (Exception e) {
+            logger.error("[UserService] createNewUser() ERROR : " + e.getMessage());
+        }
+        return "-1";
+
     };
-    public int BoardUpdateService(Board board){ return boardDao.BoardUpdateRepo(board); };
-    public int BoardDeleteService(int board_id) { return boardDao.BoardDeleteRepo(board_id); };
+    public int BoardUpdateService(Board board){
+        //현재 시간
+        SimpleDateFormat time_format = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String now = time_format.format(date);
+        board.setUpdated_time(now);
+
+        return boardDao.BoardUpdateRepo(board);
+    };
+    public int BoardDeleteService(String bsn) { return boardDao.BoardDeleteRepo(bsn); };
 
     //좋아요
-    public int BoardCheckLikeService(int board_id, int liker_id) { return boardDao.BoardCheckLikeRepo(board_id, liker_id);}
+    public int BoardCheckLikeService(String board_id, String liker_id) { return boardDao.BoardCheckLikeRepo(board_id, liker_id);}
     //좋아요 취소
-    public int BoardCancelLikeService(int board_id, int liker_id) {return boardDao.BoardCancelLikeRepo(board_id, liker_id);}
+    public int BoardCancelLikeService(String board_id, String liker_id) {return boardDao.BoardCancelLikeRepo(board_id, liker_id);}
     //좋아요 횟수 및 유저 리스트
-    public List<Integer> BoardDetailLikeService(int board_id) { return boardDao.BoardDetailLikeRepo(board_id);}
+    public List<Integer> BoardDetailLikeService(String bsn) { return boardDao.BoardDetailLikeRepo(bsn);}
 
     //게시물 신고하기
-    public int BoardReportService(int board_id, int report_cnt) {return boardDao.BoardReportRepo(board_id, report_cnt);}
+    public int BoardReportService(String bsn, int report_cnt) {return boardDao.BoardReportRepo(bsn, report_cnt);}
     //5번 이상 신고된 게시물 삭제
-    public int BoardReportDelService(int board_id) {return boardDao.BoardReportDelRepo(board_id);}
+    public int BoardReportDelService(String bsn) {return boardDao.BoardReportDelRepo(bsn);}
 }

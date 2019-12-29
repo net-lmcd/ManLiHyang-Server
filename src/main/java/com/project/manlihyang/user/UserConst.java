@@ -8,5 +8,4 @@ public class UserConst {
     public static final String FAILED_UPDATE_USER = "유저 정보 변경에 실패하였습니다.";
     public static final String NO_DELETE_USER_MATCHED = "삭제할 수 있는 유저가 없습니다.";
     public static final String NO_MEMBER = "존재하지 않는 유저입니다.";
-
 }
