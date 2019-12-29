@@ -73,10 +73,11 @@ public class UserController extends BaseController {
      * @param request
      * email 존재시 409
      */
-    @PostMapping("/confirm")
-    public ResponseEntity<?> confirmIsValidEmailAPI(@RequestBody RequestData request) {
+    @PostMapping("/{service-code}/confirm")
+    public ResponseEntity<?> confirmIsValidEmailAPI(@PathVariable("service-code") int code,
+                                                    @RequestBody RequestData request) {
         log.info("[POST] /users/confirm" +" confirmIsValidEmailAPI() \n [REQUEST BODY] \n" + logHelper.convertToString(request));
-        userService.filterEmailAndCode(request);
+        userService.filterEmailAndCode(code, request);
         return !userService.checkIsExistsEmail(request.getEmail())
                 ? ResponseEntity.ok(successResponseU())
                 : ResponseEntity.status(409)
