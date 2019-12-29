@@ -37,7 +37,7 @@ public class UserController extends BaseController {
 
     /**
      * 유저 생성 API
-     * 성공 - 201 created, Header - [Location, http://{address}/user/{usn}] 추가
+     * 성공 - 201 created, Header - Location, http://{address}/user/{usn}] 추가
      */
     @PostMapping("/{service-code}")
     public ResponseEntity<?> createUserAPI(@PathVariable("service-code") int code,

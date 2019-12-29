@@ -2,6 +2,7 @@ package com.project.manlihyang.util;
 
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -9,7 +10,16 @@ import java.util.Date;
  */
 @Component
 public class ApiHelper {
-    public long makeTimeStamp() {
+
+    private static SimpleDateFormat time_format = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+
+    public Long makeTimeStamp() {
         return new Date().getTime();
+    }
+
+    public String makeNowTimeStamp( ) {
+        Date date = new Date();
+        String now = time_format.format(date);
+        return now;
     }
 }
