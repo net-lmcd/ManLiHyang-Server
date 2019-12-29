@@ -115,7 +115,7 @@ public class BoardController {
     //게시물 조회 ( 전체 )
     @GetMapping("/{service-code}")
     public ArrayList<Board> board_read(@PathVariable("service-code") int code) {
-        logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI() ");
+        logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI()");
         return boardService.BoardsReadService();
     }
 
@@ -162,7 +162,7 @@ public class BoardController {
                            @PathVariable("board_id") String board_id,
                            @PathVariable("liker_id") String liker_id) {
 
-        logger.info("게시물 좋아요");
+        logger.info("[POST] /board/like" + "/" + code + "/" + "BoardCheckLikeAPI()");
         return boardService.BoardCheckLikeService(board_id, liker_id);
     }
 
@@ -171,7 +171,7 @@ public class BoardController {
     public int board_like_cancel(@PathVariable("service-code") int code,
                                  @PathVariable("board_id") String board_id,
                                  @PathVariable("liker_id") String liker_id) {
-        logger.info("게시물 좋아요 취소");
+        logger.info("[DELETE] /board/like" + "/" + code + "/" + "BoardCancelLikeAPI()");
         return boardService.BoardCancelLikeService(board_id, liker_id);
     }
 
@@ -180,7 +180,7 @@ public class BoardController {
     public LikeMeta board_like_detail(@PathVariable("service-code") int code,
                                       @PathVariable("board_id") String board_id){
 
-        logger.info("게시물 좋아요 누른 횟수 및 유저 확인");
+        logger.info("[GET] /board/like" + "/" + code + "/" + "BoardLikeDetailAPI()");
         List<Integer> likerList = boardService.BoardDetailLikeService(board_id);
         LikeMeta likeMeta = LikeMeta.builder()
                             .like_cnt(likerList.size())
@@ -196,7 +196,7 @@ public class BoardController {
                              @PathVariable("bsn") String bsn,
                              @PathVariable("report_cnt") int report_cnt) {
 
-        logger.info("게시물 신고하기");
+        logger.info("[PUT] /board/report" + "/" + code + "/" + "BoardReportAPI()");
 
         //해당 게시물 삭제 ( 5번 이상 신고된 게시물 삭제 )
         if(report_cnt == 5) boardService.BoardReportDelService(bsn);
