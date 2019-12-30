@@ -108,4 +108,35 @@ public class BoardService {
     public int BoardReportService(String bsn, int report_cnt) {return boardDao.BoardReportRepo(bsn, report_cnt);}
     //5번 이상 신고된 게시물 삭제
     public int BoardReportDelService(String bsn) {return boardDao.BoardReportDelRepo(bsn);}
+
+    //댓글 달기
+    public String BoardCommentService(Board comment) {
+
+        String bsn = UUID.randomUUID().toString();
+        //부모의 group_id, group_seq, group_depth
+        int parent_group_seq = comment.getGroup_seq();
+        int parnet_group_depth = comment.getGroup_depth();
+        String group_id = comment.getGroup_id();
+        try {
+            boardDao.BoardCommentUpdateGroupSeqRepo(group_id, parent_group_seq);
+        } catch (Exception e) {
+            logger.error("[BoardService] createNewComment() UPDATE ERROR : " + e.getMessage());
+        }
+
+        try {
+            comment.setBsn(bsn); // bsn 세팅
+
+            //내가 들어갈 자리는 부모 위치에서 1을 더해줌 ( seq, depth )
+            int my_group_seq = parent_group_seq + 1;
+            int my_group_depth = parnet_group_depth + 1;
+            comment.setGroup_seq(my_group_seq);
+            comment.setGroup_depth(my_group_depth);
+            boardDao.BoardCommentCreateRepo(comment);
+            return bsn;
+        } catch (Exception e) {
+            logger.error("[BoardService] createNewComment() INSERT ERROR : " + e.getMessage());
+        }
+
+        return "-1";
+    }
 }

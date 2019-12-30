@@ -184,6 +184,13 @@ public class BoardController {
     //댓글 조회
 
     //댓글 삽입
+    @PostMapping("/{service-code}/comment")
+    public String board_comment(@PathVariable("service-code") int code,
+                              Board comment) {  // 뷰모의 group_seq, group_depth를 입력해줘야함. 결국, 댓글이 들어갈 자리는 부모 seq + 1, 부모 depth + 1 이다.
+
+        logger.info("[POST] /board/comment" + "/" + code + "/" + "BoardCommentCreateAPI()");
+        return boardService.BoardCommentService(comment);
+    }
 
     //댓글 삭제
 

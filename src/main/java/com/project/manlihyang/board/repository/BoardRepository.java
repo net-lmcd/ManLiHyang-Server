@@ -22,7 +22,7 @@ public interface BoardRepository {
     Board BoardReadDetailRepo(String bsn);
 
     //게시물 생성
-    @Insert("INSERT INTO board (bsn, writer_id, title, content, img_url, img_name, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(#{bsn}, #{writer_id}, #{title}, #{content}, #{img_url}, #{img_name}, ${report_cnt}, #{group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
+    @Insert("INSERT INTO board (bsn, writer_id, title, content, img_url, img_name, report_cnt, group_id, group_seq, group_depth) VALUES(#{bsn}, #{writer_id}, #{title}, #{content}, #{img_url}, #{img_name}, ${report_cnt}, #{group_id}, ${group_seq}, ${group_depth})")
     @Options(useGeneratedKeys=true)
     void BoardCreateRepo(Board board);
 
@@ -65,11 +65,12 @@ public interface BoardRepository {
     // 게시물의 댓글일 경우에는 가장 마지막에 추가된 seq + 1,  depth = 1 )
     //댓글을 쓰려면 update -> insert
 
-    //댓글을 달기 위한 자리 마련 ( seq를 하나씩 뒤로 민다. )
-    @Update("UPDATE board set group_seq = ${group_seq} + 1 where group_id = ${group_id} and group_seq > ${group_seq}")
-    int BoardCommentUpdateGroupSeqRepo(Board comment);
+    //댓글을 달기 위한 자리 마련 ( seq를 하나씩 뒤로 민다.)
+    // group_seq, group_id는 Client에서 설정해줘야함.
+    @Update("UPDATE board set group_seq = group_seq + 1 where group_id = #{group_id} and group_seq > ${group_seq}")
+    void BoardCommentUpdateGroupSeqRepo(String group_id, int group_seq);
     //댓글 달기
-    @Insert("INSERT INTO board (writer_id, content, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(${writer_id}, #{content}, ${report_cnt}, ${group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
+    @Insert("INSERT INTO board (bsn, writer_id, content, report_cnt, group_id, group_seq, group_depth) VALUES(#{bsn}, #{writer_id}, #{content}, ${report_cnt}, #{group_id}, ${group_seq}, ${group_depth})")
     int BoardCommentCreateRepo(Board comment);
 
     //게시물 댓글 수정
