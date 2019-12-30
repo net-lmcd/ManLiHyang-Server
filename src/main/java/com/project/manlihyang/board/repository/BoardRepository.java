@@ -30,9 +30,13 @@ public interface BoardRepository {
     @Update("UPDATE board set title=#{title}, content=#{content}, updated_time=#{updated_time} where bsn=#{bsn}")
     int BoardUpdateRepo(Board board);
 
-    // 게시물 삭제 -> 게시물 삭제할때 해당 게시물의 댓글도 삭제해줘야함 !!
+    // 게시물 삭제 -> 게시물 삭제할때 해당 게시물의 댓글 및 s3에 있는 이미지도 삭제해줘야 함 !!
     @Delete("DELETE FROM board where group_id = #{bsn}")
     int BoardDeleteRepo(String bsn);
+
+    // 삭제할 게시물의 이미지 이름 return (s3에 저장된 file의 이름)
+    @Select("SELECT img_name from board where group_id = #{bsn} && bsn = #{bsn}")
+    String BoardImgNameRepo(String bsn);
 
     //게시물 좋아요 누름"
     @Insert("Insert likes (board_id, liker_id) VALUES(#{board_id}, ${liker_id})")

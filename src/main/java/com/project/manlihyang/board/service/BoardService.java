@@ -1,7 +1,9 @@
 package com.project.manlihyang.board.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.project.manlihyang.board.controller.BoardController;
 import com.project.manlihyang.board.domain.Board;
@@ -72,7 +74,6 @@ public class BoardService {
             board.setImg_url(img_url);
             board.setImg_name(img_name);
             boardDao.BoardCreateRepo(board);
-
             return bsn;
         } catch (Exception e) {
             logger.error("[BoardService] createNewBoard() ERROR : " + e.getMessage());
@@ -84,7 +85,17 @@ public class BoardService {
         board.setUpdated_time(apiHelper.makeNowTimeStamp());
         return boardDao.BoardUpdateRepo(board);
     };
-    public int BoardDeleteService(String bsn) { return boardDao.BoardDeleteRepo(bsn); };
+
+    public int BoardDeleteService(String bsn) {
+        //해당 bsn의 s3 이미지 삭제. ( 인자로 받은 bsn 값을 갖는 게시물의 img_name 필요 )
+        String filename = boardDao.BoardImgNameRepo(bsn);
+        try { // s3에 있는 이미지 file 삭제
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, filename));
+        } catch (AmazonServiceException ex) {
+            logger.error("error [" + ex.getMessage() + "] occurred while removing [" + filename + "] ");
+        }
+        return boardDao.BoardDeleteRepo(bsn);
+    };
 
     //좋아요
     public int BoardCheckLikeService(String board_id, String liker_id) { return boardDao.BoardCheckLikeRepo(board_id, liker_id);}
