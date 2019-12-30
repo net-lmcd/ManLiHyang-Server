@@ -12,6 +12,8 @@ import com.project.manlihyang.board.domain.Board;
 import com.project.manlihyang.board.domain.LikeMeta;
 import com.project.manlihyang.board.service.BoardService;
 import com.project.manlihyang.util.Const;
+import jdk.nashorn.internal.objects.annotations.Getter;
+import net.bytebuddy.build.Plugin;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.annotations.Delete;
 import org.slf4j.Logger;
@@ -182,6 +184,13 @@ public class BoardController {
     }
 
     //댓글 조회
+    @GetMapping("/{service-code}/comment/{bsn}")
+    public ArrayList<Board> board_comment_read(@PathVariable("service-code") int code,
+                                               @PathVariable("bsn") String bsn) {
+
+        logger.info("[GET] /board/comment" + "/" + code + "/" + "BoardCommentReadAPI()");
+        return boardService.BoardCommentListService(bsn);
+    }
 
     //댓글 삽입
     @PostMapping("/{service-code}/comment")
@@ -192,7 +201,19 @@ public class BoardController {
         return boardService.BoardCommentService(comment);
     }
 
-    //댓글 삭제
-
     //댓글 수정
+    @PutMapping("/{service-code}/comment")
+    public String board_comment_update(@PathVariable("service-code") int code,
+                                       Board comment) {
+        logger.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentUpdateAPI()");
+        return boardService.BoardCommentUpdateService(comment);
+    }
+
+    //댓글 삭제
+    @PutMapping("/{service-code}/comment/{bsn}")
+    public String board_comment_delete(@PathVariable("service-code") int code,
+                                       @PathVariable("bsn") String bsn) {
+        logger.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentDeleteAPI()");
+        return boardService.BoardCommentDeleteService(bsn);
+    }
 }

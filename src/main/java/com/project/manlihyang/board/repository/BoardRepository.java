@@ -15,7 +15,7 @@ public interface BoardRepository {
 
     //게시물 전체 조회 ( group_seq = 1 인 경우만 게시물이고 1보다 클 경우는 게시물의 댓글을 의미한다. )
     @Select("SELECT * from board where group_seq = 0")
-    ArrayList<Board> BoardsReadRepo();
+    ArrayList<Board> BoardsReadRepo( );
 
     //게시물 상세조회
     @Select("SELECT * from board where bsn = #{bsn}")
@@ -58,15 +58,15 @@ public interface BoardRepository {
 
     //게시물의 댓글 조회
     @Select("SELECT * FROM board where group_id = #{bsn} && bsn != #{bsn}")
-    Board BoardCommentReadDetailRepo(String bsn);
+    ArrayList<Board> BoardCommentsReadRepo(String bsn);
 
     //게시물 댓글 달기 ( Client에서 해당 위치 바로위에 있는 group_seq + 1 및 depth + 1 을 넣어줘야함.
-    // 댓글의 댓글이냐? 아니면 게시물의 댓글이냐를 구분 ( 댓글의 댓글일 경우 해당 댓글의 seq + 1, depth + 1 해주고 해당 seq보다 밑에 있는 애들 seq + 1 씩 증가 시켜 줘야 되고
-    // 게시물의 댓글일 경우에는 가장 마지막에 추가된 seq + 1,  depth = 1 )
+    //댓글의 댓글이냐? 아니면 게시물의 댓글이냐를 구분 ( 댓글의 댓글일 경우 해당 댓글의 seq + 1, depth + 1 해주고 해당 seq보다 밑에 있는 애들 seq + 1 씩 증가 시켜 줘야 되고
+    //게시물의 댓글일 경우에는 가장 마지막에 추가된 seq + 1,  depth = 1 )
     //댓글을 쓰려면 update -> insert
 
-    //댓글을 달기 위한 자리 마련 ( seq를 하나씩 뒤로 민다.)
-    // group_seq, group_id는 Client에서 설정해줘야함.
+    //댓글을 달기 위한 자리 마련 (seq를 하나씩 뒤로 민다.)
+    //group_seq, group_id는 Client에서 설정해줘야함.
     @Update("UPDATE board set group_seq = group_seq + 1 where group_id = #{group_id} and group_seq > ${group_seq}")
     void BoardCommentUpdateGroupSeqRepo(String group_id, int group_seq);
     //댓글 달기
@@ -74,10 +74,10 @@ public interface BoardRepository {
     int BoardCommentCreateRepo(Board comment);
 
     //게시물 댓글 수정
-    @Update("Update board set content = #{content}, updated_time = #{updated_time}")
-    int BoardCommentUpdateRepo(String content, String updated_time);
-    //게시물 댓글 삭제
+    @Update("Update board set content = #{content}, updated_time = #{updated_time} where bsn = #{bsn}")
+    void BoardCommentUpdateRepo(Board comment);
 
-    @Delete("DELETE FROM board where id = ${board_id}")
-    int BoardCommentDeleteRepo(String csn);
+    //게시물 댓글 삭제 ( is_del : 'N' -> 'Y' && content = "해당 글은 삭제되었습니다.")
+    @Update("UPDATE board set is_del = 'Y', content ='해당 글은 삭제되었습니다.' where bsn = #{bsn}")
+    void BoardCommentDeleteRepo(String bsn);
 }

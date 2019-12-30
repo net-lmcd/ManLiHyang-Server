@@ -41,15 +41,15 @@ public class BoardService {
     @Value("${spring.aws.bucket}")
     private String bucket;
 
-    //list
+    //게시물 조회
     public ArrayList<Board> BoardsReadService( ) {
         return boardDao.BoardsReadRepo();
     }
-
+    //게시물 상세조회
     public Board BoardReadDetailService(String bsn) {
         return boardDao.BoardReadDetailRepo(bsn);
     }
-
+    //게시물 생성
     public String BoardCreateService(Board board, MultipartFile file) {
 
         String bsn = UUID.randomUUID().toString();
@@ -79,13 +79,13 @@ public class BoardService {
             logger.error("[BoardService] createNewBoard() ERROR : " + e.getMessage());
         }
         return "-1";
-
     };
+    //게시물 수정
     public int BoardUpdateService(Board board){
         board.setUpdated_time(apiHelper.makeNowTimeStamp());
         return boardDao.BoardUpdateRepo(board);
     };
-
+    //게시물 삭
     public int BoardDeleteService(String bsn) {
         //해당 bsn의 s3 이미지 삭제. ( 인자로 받은 bsn 값을 갖는 게시물의 img_name 필요 )
         String filename = boardDao.BoardImgNameRepo(bsn);
@@ -136,7 +136,36 @@ public class BoardService {
         } catch (Exception e) {
             logger.error("[BoardService] createNewComment() INSERT ERROR : " + e.getMessage());
         }
+        return "-1";
+    }
 
+    //댓글 조회
+    public ArrayList<Board> BoardCommentListService(String bsn) {
+         return boardDao.BoardCommentsReadRepo(bsn);
+    }
+
+    //댓글 수정
+    public String BoardCommentUpdateService(Board comment) {
+
+        String bsn = comment.getBsn();
+        try {
+            comment.setUpdated_time(apiHelper.makeNowTimeStamp());
+            boardDao.BoardCommentUpdateRepo(comment);
+            return bsn;
+        } catch (Exception e) {
+            logger.error("[BoardService] updateComment() : " + e.getMessage());
+        }
+        return "-1";
+    }
+
+    //댓글 삭제 -> 컬럼을 지우는게 아니라 컬럼은 남기고 is_del 만 true로 바꾸고 내용은 "해당 내용이 삭제되었습니다."라고 바
+    public String BoardCommentDeleteService(String bsn) {
+        try {
+            boardDao.BoardCommentDeleteRepo(bsn);
+            return bsn;
+        } catch (Exception e) {
+            logger.error("[BoardService] deleteComment() : " + e.getMessage());
+        }
         return "-1";
     }
 }
