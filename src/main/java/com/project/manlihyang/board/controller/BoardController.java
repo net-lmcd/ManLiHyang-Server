@@ -1,5 +1,6 @@
 package com.project.manlihyang.board.controller;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -16,6 +17,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,11 +43,26 @@ public class BoardController {
     @Autowired
     AmazonS3 amazonS3Client;
 
+    @Value("${spring.aws.bucket}")
+    private String bucket;
+
+    //s3 이미지 삭
+    @DeleteMapping("/img_del")
+    public void bucket_del(@RequestParam("fileName") String filename){
+
+        logger.info("fileName : " + filename);
+
+        try {
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, filename));
+        } catch (AmazonServiceException ex) {
+            logger.error("error [" + ex.getMessage() + "] occurred while removing [" + filename + "] ");
+        }
+    }
+
     @GetMapping("/img_download")
     public void download_test( ) {
-        String bucketName = "manli-hang-s3";
 
-        S3Object s3object = amazonS3Client.getObject(bucketName, "aaaa.txt");
+        S3Object s3object = amazonS3Client.getObject(bucket, "aaaa.txt");
         S3ObjectInputStream inputStream = s3object.getObjectContent();
         try {
             FileUtils.copyInputStreamToFile(inputStream, new File("/home/ktj/바탕화면/bbbb.txt"));
@@ -53,6 +70,7 @@ public class BoardController {
             e.printStackTrace();
         }
     }
+
     @GetMapping("/img_test")
     public void tttest( ) {
 
@@ -69,47 +87,7 @@ public class BoardController {
             logger.info(os.getKey());
             logger.info(String.valueOf(os.getSize()) );
         }
-    }
 
-    //s3에 이미지 넣기 테스트
-    @PostMapping("/img")
-    public void img_test(MultipartFile file) {
-
-        String bucketName = "manli-hang-s3";
-
-        /*  bucket 만들기
-        if(s3client.doesBucketExistV2(bucketName)) {
-            logger.info("Bucket name is not available."
-                    + " Try again with a different Bucket name.");
-        }  else {
-            s3client.createBucket(bucketName);
-        }
-         */
-
-        File file_upload = new File("/home/ktj/바탕화면/aaaa.txt");
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(file_upload);
-            fw.write("hello aws s3 with spring boot!!!");
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // bucket에 파일 업로드 (방법 1 )
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, "file_upload_test.txt", file_upload);
-        // 퍼블릭으로 공개하여 올림.
-        putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
-        amazonS3Client.putObject(putObjectRequest);
-
-        // bucket에 파일 업로드 (방법2)
-        /*
-        amazonS3Client.putObject(
-                bucketName,
-                "aaaa.txt",
-                file_upload
-        );
-*/
     }
 
     //게시물 조회 ( 전체 )
@@ -132,7 +110,7 @@ public class BoardController {
     public String board_insert(Board board, MultipartFile file,
                                @PathVariable("service-code") int code) {
         logger.info("[POST] /board" + "/" + code + "/" + "CreateBoardAPI() ");
-        return boardService.BoardCreateService(board);
+        return boardService.BoardCreateService(board, file);
     }
 
     //게시물 수정

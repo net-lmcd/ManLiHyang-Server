@@ -15,6 +15,7 @@ public class Board {
     String title; // 게시물 제목
     String content; // 게시물 내용
     String img_url; // 이미지 경로
+    String img_name; // s3에 저장될 이미지 이름
     int report_cnt; // 신고 갯수
     char is_del; // 댓글이 삭제된 댓글인지 판별하는 변수
     String group_id; // 게시물 그룹 id

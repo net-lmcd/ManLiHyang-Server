@@ -1,6 +1,6 @@
 package com.project.manlihyang.board.exception;
 
-public class ExceptionValue {
+public class BoardConst {
     public static final String FAILED_CREATE_BOARD = "게시물 생성에 실패하였습니다..";
     public static final String FAILED_READ_BOARD = "게시물 조회에 실패하였습니다..";
     public static final String FAILED_UPDATE_BOARD = "게시물 수정에 실패하였습니다..";

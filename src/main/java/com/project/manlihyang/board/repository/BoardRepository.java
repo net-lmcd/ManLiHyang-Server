@@ -22,7 +22,7 @@ public interface BoardRepository {
     Board BoardReadDetailRepo(String bsn);
 
     //게시물 생성
-    @Insert("INSERT INTO board (bsn, writer_id, title, content, img_url, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(#{bsn}, #{writer_id}, #{title}, #{content}, #{img_url}, ${report_cnt}, #{group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
+    @Insert("INSERT INTO board (bsn, writer_id, title, content, img_url, img_name, report_cnt, group_id, group_seq, group_depth, created_time, updated_time) VALUES(#{bsn}, #{writer_id}, #{title}, #{content}, #{img_url}, #{img_name}, ${report_cnt}, #{group_id}, ${group_seq}, ${group_depth}, #{created_time}, #{updated_time})")
     @Options(useGeneratedKeys=true)
     void BoardCreateRepo(Board board);
 
