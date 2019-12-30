@@ -39,14 +39,14 @@ public class BoardService {
 
         String bsn = UUID.randomUUID().toString();
         try {
-            board.setBsn(bsn);
+            board.setBsn(bsn); // bsn 세팅
             board.setGroup_id(bsn); // 게시물 원본일 경우 group_id는 자기 자신
-            boardDao.BoardCreateRepo(board);
             board.setCreated_time(apiHelper.makeNowTimeStamp());
             board.setUpdated_time(apiHelper.makeNowTimeStamp());
+            boardDao.BoardCreateRepo(board);
             return bsn;
         } catch (Exception e) {
-            logger.error("[UserService] createNewUser() ERROR : " + e.getMessage());
+            logger.error("[BoardService] createNewBoard() ERROR : " + e.getMessage());
         }
         return "-1";
 

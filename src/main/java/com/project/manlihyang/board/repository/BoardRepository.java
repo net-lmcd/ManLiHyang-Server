@@ -31,7 +31,7 @@ public interface BoardRepository {
     int BoardUpdateRepo(Board board);
 
     // 게시물 삭제 -> 게시물 삭제할때 해당 게시물의 댓글도 삭제해줘야함 !!
-    @Delete("DELETE FROM board where bsn = #{bsn}")
+    @Delete("DELETE FROM board where group_id = #{bsn}")
     int BoardDeleteRepo(String bsn);
 
     //게시물 좋아요 누름"
