@@ -41,4 +41,9 @@ public class Validator {
         if (code != 1000)
             throw new NoServiceException();
     }
+
+    public void checkValidBoardServiceCode(int code) {
+        if(code != 1001)
+            throw new NoServiceException();
+    }
 }

@@ -6,7 +6,6 @@ import java.util.List;
 @Data
 @Builder
 public class LikeMeta {
-
     int like_cnt;
-    List<Integer> likers;
+    List<String> likers;
 }

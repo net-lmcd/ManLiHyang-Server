@@ -39,14 +39,14 @@ public interface BoardRepository {
     String BoardImgNameRepo(String bsn);
 
     //게시물 좋아요 누름"
-    @Insert("Insert likes (board_id, liker_id) VALUES(#{board_id}, ${liker_id})")
+    @Insert("Insert likes (board_id, liker_id) VALUES(#{board_id}, #{liker_id})")
     int BoardCheckLikeRepo(String board_id, String liker_id);
     //게시물 좋아요 취소
-    @Delete("Delete from likes where board_id = #{board_id} && liker_id = ${liker_id}")
+    @Delete("Delete from likes where board_id = #{board_id} && liker_id = #{liker_id}")
     int BoardCancelLikeRepo(String board_id, String liker_id);
     //게시물 좋아요 횟수 및 누른 사람 리스트
     @Select("Select liker_id from likes where board_id = #{board_id}")
-    List<Integer> BoardDetailLikeRepo(String board_id);
+    List<String> BoardDetailLikeRepo(String board_id);
 
     //게시물 신고하기
     @Update("Update board set report_cnt = ${report_cnt} + 1 where bsn = #{bsn}")

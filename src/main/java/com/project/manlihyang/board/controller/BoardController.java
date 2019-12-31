@@ -96,6 +96,8 @@ public class BoardController {
     @GetMapping("/{service-code}")
     public ArrayList<Board> board_read(@PathVariable("service-code") int code) {
         logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI()");
+
+        boardService.filterCode(code);
         return boardService.BoardsReadService();
     }
 
@@ -104,6 +106,7 @@ public class BoardController {
     public Board board_read_detail(@PathVariable("service-code") int code,
                                    @PathVariable String bsn){
         logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardDetailAPI() ");
+        boardService.filterCode(code);
         return boardService.BoardReadDetailService(bsn);
     }
 
@@ -112,6 +115,7 @@ public class BoardController {
     public String board_insert(Board board, MultipartFile file,
                                @PathVariable("service-code") int code) {
         logger.info("[POST] /board" + "/" + code + "/" + "CreateBoardAPI() ");
+        boardService.filterCode(code);
         return boardService.BoardCreateService(board, file);
     }
 
@@ -121,8 +125,7 @@ public class BoardController {
                             @PathVariable("service-code") int code) {
 
         logger.info("[PUT] /board" + "/" + code + "/" + "UpdateBoardAPI() ");
-        logger.info("Board : " + board.toString());
-
+        boardService.filterCode(code);
         return boardService.BoardUpdateService(board);
     }
 
@@ -132,6 +135,7 @@ public class BoardController {
                             @PathVariable String bsn) {
 
         logger.info("[POST] /board" + "/" + code + "/" + "DeleteBoardAPI() ");
+        boardService.filterCode(code);
         return boardService.BoardDeleteService(bsn);
     }
 
@@ -143,6 +147,7 @@ public class BoardController {
                            @PathVariable("liker_id") String liker_id) {
 
         logger.info("[POST] /board/like" + "/" + code + "/" + "BoardCheckLikeAPI()");
+        boardService.filterCode(code);
         return boardService.BoardCheckLikeService(board_id, liker_id);
     }
 
@@ -152,6 +157,7 @@ public class BoardController {
                                  @PathVariable("board_id") String board_id,
                                  @PathVariable("liker_id") String liker_id) {
         logger.info("[DELETE] /board/like" + "/" + code + "/" + "BoardCancelLikeAPI()");
+        boardService.filterCode(code);
         return boardService.BoardCancelLikeService(board_id, liker_id);
     }
 
@@ -161,14 +167,15 @@ public class BoardController {
                                       @PathVariable("board_id") String board_id){
 
         logger.info("[GET] /board/like" + "/" + code + "/" + "BoardLikeDetailAPI()");
-        List<Integer> likerList = boardService.BoardDetailLikeService(board_id);
+        boardService.filterCode(code);
+
+        List<String> likerList = boardService.BoardDetailLikeService(board_id);
         LikeMeta likeMeta = LikeMeta.builder()
                             .like_cnt(likerList.size())
                             .likers(likerList)
                             .build();
         return likeMeta;
     }
-
 
     // 게시물 신고 하기
     @PutMapping("/{service-code}/report/{bsn}/{report_cnt}")
@@ -177,6 +184,7 @@ public class BoardController {
                              @PathVariable("report_cnt") int report_cnt) {
 
         logger.info("[PUT] /board/report" + "/" + code + "/" + "BoardReportAPI()");
+        boardService.filterCode(code);
 
         //해당 게시물 삭제 ( 5번 이상 신고된 게시물 삭제 )
         if(report_cnt == 5) boardService.BoardReportDelService(bsn);
@@ -189,6 +197,7 @@ public class BoardController {
                                                @PathVariable("bsn") String bsn) {
 
         logger.info("[GET] /board/comment" + "/" + code + "/" + "BoardCommentReadAPI()");
+        boardService.filterCode(code);
         return boardService.BoardCommentListService(bsn);
     }
 
@@ -198,6 +207,7 @@ public class BoardController {
                               Board comment) {  // 뷰모의 group_seq, group_depth를 입력해줘야함. 결국, 댓글이 들어갈 자리는 부모 seq + 1, 부모 depth + 1 이다.
 
         logger.info("[POST] /board/comment" + "/" + code + "/" + "BoardCommentCreateAPI()");
+        boardService.filterCode(code);
         return boardService.BoardCommentService(comment);
     }
 
@@ -206,6 +216,7 @@ public class BoardController {
     public String board_comment_update(@PathVariable("service-code") int code,
                                        Board comment) {
         logger.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentUpdateAPI()");
+        boardService.filterCode(code);
         return boardService.BoardCommentUpdateService(comment);
     }
 
@@ -214,6 +225,7 @@ public class BoardController {
     public String board_comment_delete(@PathVariable("service-code") int code,
                                        @PathVariable("bsn") String bsn) {
         logger.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentDeleteAPI()");
+        boardService.filterCode(code);
         return boardService.BoardCommentDeleteService(bsn);
     }
 }
