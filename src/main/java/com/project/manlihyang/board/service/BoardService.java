@@ -39,27 +39,14 @@ public class BoardService {
     @Value("${spring.aws.bucket}")
     private String bucket;
 
-    Map<String, String> bg_map = null;
+    //게시물 배경 이미지 조회 ( default )
+    public Map<String, String> BoardBackGroundImgListService(String type) {
+        return s3_file_list(type);
+    }
 
-    //게시물 배경 이미지 조회
-    public Map<String, String> BoardBackGroundImgListService( ) {
-
-        bg_map = new HashMap<String, String>(); // 이 변수 전역으로 하면 멀티쓰레드 환경에서 동기화 필요
-
-        ObjectListing objectListing = amazonS3Client.listObjects(bucket);
-        for(S3ObjectSummary os : objectListing.getObjectSummaries()) {
-
-            //logger.info("name : " + os.getKey());
-
-            // 키의 값이 "book-img/스크린샷, 2019-10-08 10-39-40.png.1577859571770" 이런 형식이여서 "/"를 기준으로 spilt하고 맨 앞 string이 book-img인 애들만 빼옴
-            String[ ] folder = os.getKey().split("/");
-
-            //길이 체크는 book-img/를 제외하기 위해서.
-            if(folder[0].equals("book-img") && folder.length == 2) {
-                bg_map.put(os.getKey(), amazonS3Client.getUrl(bucket, os.getKey()).toString());
-            }
-        }
-        return bg_map;
+    //게시물 책 이미지 조회 ( default )
+    public Map<String, String> BoardBookImgListService(String type) {
+        return s3_file_list(type);
     }
 
     //게시물 조회
@@ -223,5 +210,25 @@ public class BoardService {
     //service-code check
     public void filterCode(int code) {
         validator.checkValidBoardServiceCode(code);
+    }
+
+    // s3에서 이미지 리스트 조회
+    public Map<String, String> s3_file_list(String type) {
+
+        Map<String, String> map = new HashMap<>();
+
+        ObjectListing objectListing = amazonS3Client.listObjects(bucket);
+        for(S3ObjectSummary os : objectListing.getObjectSummaries()) {
+
+            logger.info("name : " + os.getKey());
+
+            String[ ] folder = os.getKey().split("/");
+
+            //길이 체크는 book-img/ 및 bg-im/를 제외하기 위해서.
+            if(folder[0].equals(type) && folder.length == 2) {
+                map.put(os.getKey(), amazonS3Client.getUrl(bucket, os.getKey()).toString());
+            }
+        }
+        return map;
     }
 }

@@ -45,12 +45,19 @@ public class BoardController {
     @Value("${spring.aws.bucket}")
     private String bucket;
 
-    //배경 이미지 목록
+    //배경 이미지 목록 ( default ) -> s3의 bg-img 폴더
     @GetMapping("/{service-code}/bg-img")
     public Map<String, String> bg_img_list(@PathVariable("service-code") int code) {
 
         logger.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBackgroundListAPI() ");
-        return boardService.BoardBackGroundImgListService();
+        return boardService.BoardBackGroundImgListService("bg-img");
+    }
+
+    // 책 이미지 목록 ( default ) -> s3의 book-img 폴더
+    @GetMapping("/{service-code}/book-img")
+    public Map<String, String> book_img_list(@PathVariable("service-code") int code) {
+        logger.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBookListAPI() ");
+        return boardService.BoardBookImgListService("book-img");
     }
 
     @GetMapping("/img_download")
