@@ -27,10 +27,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/board")
@@ -48,17 +45,12 @@ public class BoardController {
     @Value("${spring.aws.bucket}")
     private String bucket;
 
-    //s3 이미지 삭
-    @DeleteMapping("/img_del")
-    public void bucket_del(@RequestParam("fileName") String filename){
+    //배경 이미지 목록
+    @GetMapping("/{service-code}/bg-img")
+    public Map<String, String> bg_img_list(@PathVariable("service-code") int code) {
 
-        logger.info("fileName : " + filename);
-
-        try {
-            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, filename));
-        } catch (AmazonServiceException ex) {
-            logger.error("error [" + ex.getMessage() + "] occurred while removing [" + filename + "] ");
-        }
+        logger.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBackgroundListAPI() ");
+        return boardService.BoardBackGroundImgListService();
     }
 
     @GetMapping("/img_download")
@@ -87,9 +79,9 @@ public class BoardController {
         ObjectListing objectListing = amazonS3Client.listObjects(bucketName);
         for(S3ObjectSummary os : objectListing.getObjectSummaries()) {
             logger.info(os.getKey());
-            logger.info(String.valueOf(os.getSize()) );
+            logger.info(String.valueOf(os.getSize()));
+            logger.info(amazonS3Client.getUrl(bucket, os.getKey()).toString());
         }
-
     }
 
     //게시물 조회 ( 전체 )
@@ -110,7 +102,7 @@ public class BoardController {
         return boardService.BoardReadDetailService(bsn);
     }
 
-    //게시물 생성
+    //게시물 생성 ( 게시물 이미지는 유저가 파일로 올려서 s3에 저장하고 배경이미지는 기존에 s3에 있던 이미지를 가져온다. )
     @PostMapping("/{service-code}")
     public String board_insert(Board board, MultipartFile file,
                                @PathVariable("service-code") int code) {
@@ -119,7 +111,7 @@ public class BoardController {
         return boardService.BoardCreateService(board, file);
     }
 
-    //게시물 수정
+    //게시물 수정 -> 이미지를 수정한다고 하면 기존 이미지 지우고 새로 업로드 필요.
     @PutMapping("/{service-code}")
     public int board_update(Board board,
                             @PathVariable("service-code") int code) {

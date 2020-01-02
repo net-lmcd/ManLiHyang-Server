@@ -2,12 +2,10 @@ package com.project.manlihyang.board.service;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
 import com.project.manlihyang.board.controller.BoardController;
 import com.project.manlihyang.board.domain.Board;
-import com.project.manlihyang.board.domain.LikeMeta;
+import com.project.manlihyang.board.BoardConst;
 import com.project.manlihyang.board.repository.BoardRepository;
 import com.project.manlihyang.util.ApiHelper;
 import com.project.manlihyang.util.Validator;
@@ -15,17 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class BoardService {
@@ -46,6 +38,29 @@ public class BoardService {
 
     @Value("${spring.aws.bucket}")
     private String bucket;
+
+    Map<String, String> bg_map = null;
+
+    //게시물 배경 이미지 조회
+    public Map<String, String> BoardBackGroundImgListService( ) {
+
+        bg_map = new HashMap<String, String>(); // 이 변수 전역으로 하면 멀티쓰레드 환경에서 동기화 필요
+
+        ObjectListing objectListing = amazonS3Client.listObjects(bucket);
+        for(S3ObjectSummary os : objectListing.getObjectSummaries()) {
+
+            //logger.info("name : " + os.getKey());
+
+            // 키의 값이 "book-img/스크린샷, 2019-10-08 10-39-40.png.1577859571770" 이런 형식이여서 "/"를 기준으로 spilt하고 맨 앞 string이 book-img인 애들만 빼옴
+            String[ ] folder = os.getKey().split("/");
+
+            //길이 체크는 book-img/를 제외하기 위해서.
+            if(folder[0].equals("book-img") && folder.length == 2) {
+                bg_map.put(os.getKey(), amazonS3Client.getUrl(bucket, os.getKey()).toString());
+            }
+        }
+        return bg_map;
+    }
 
     //게시물 조회
     public ArrayList<Board> BoardsReadService( ) {
@@ -79,15 +94,17 @@ public class BoardService {
         PutObjectRequest putObjectRequest = null;
         try {
             img_name = file.getOriginalFilename() + "." + apiHelper.makeTimeStamp();
-            putObjectRequest = new PutObjectRequest(bucket, img_name, apiHelper.convertMultiPartToFile(file))
+            // book-img 디렉토리에 업로드
+            putObjectRequest = new PutObjectRequest(bucket, BoardConst.s3_book_folder_name + "/" + img_name, apiHelper.convertMultiPartToFile(file))
                                             .withCannedAcl(CannedAccessControlList.PublicRead);// 퍼블릭으로 공개하여 s3에 올림.
             amazonS3Client.putObject(putObjectRequest);
-            img_url = amazonS3Client.getUrl(bucket, img_name).toString();
+            img_url = amazonS3Client.getUrl(bucket, BoardConst.s3_book_folder_name + "/" + img_name).toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         try {
+            /*
             board.builder()
                     .bsn(bsn) // bsn 세팅
                     .group_id(bsn) // 게시물 원본일 경우 group_ip는 자기 자신
@@ -96,7 +113,15 @@ public class BoardService {
                     .img_url(img_url)
                     .img_name(img_name)
                     .build();
+             */
+            board.setBsn(bsn);
+            board.setGroup_id(bsn);
+            board.setCreated_time(apiHelper.makeNowTimeStamp());
+            board.setUpdated_time(apiHelper.makeNowTimeStamp());
+            board.setImg_url(img_url);
+            board.setImg_name(img_name);
 
+            logger.info("Board : " + board.toString());
             boardDao.BoardCreateRepo(board);
             return bsn;
         } catch (Exception e) {

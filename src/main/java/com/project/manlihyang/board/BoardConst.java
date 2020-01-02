@@ -1,4 +1,4 @@
-package com.project.manlihyang.board.exception;
+package com.project.manlihyang.board;
 
 public class BoardConst {
     public static final String FAILED_CREATE_BOARD = "게시물 생성에 실패하였습니다..";
@@ -11,5 +11,8 @@ public class BoardConst {
     public static final String FAILED_DELETE_COMMENT = "게시물 댓글 삭제에 실패하였습니다..";
     public static final String FAILED_IMG_UPLOAD = "게시물 이미지 업로에 실패하였습니다..";
 
+    public static final String s3_book_folder_name = "book-img"; // 책 이미지 ( default )
+    public static final String s3_bg_folder_name = "bg-img"; // 배경 이미지 ( default )
+    public static final String s3_upload_folder_name = "upload-img"; // 유저가 업로드한 이미지
 
 }
