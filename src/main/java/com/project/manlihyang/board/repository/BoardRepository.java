@@ -21,8 +21,11 @@ public interface BoardRepository {
     @Select("SELECT * from board where group_seq = 0 order by created_time desc")
     List<Board> BoardsReadNewestRepo( );
 
-    //게시물 전체 조회 - 인기순
+    //게시물 전체 조회 - 인기순 -> 아직 사용안함
     // select board_id from likes group by board_id order by count(board_id) desc;
+    /* 인기순 정렬로 조회를 하기 위해서는 기본적으로 board 테이블에 like 컬럼을 추가해주고 likes 테이블에 컬럼이 추가, 삭제될때
+     board 테이블의 like 값도 바뀌는 구조가 되어야 한다.
+     */
     @Select("SELECT * from board where group_seq = 0 ")
     List<Board> BoardsReadPopularRepo( );
 

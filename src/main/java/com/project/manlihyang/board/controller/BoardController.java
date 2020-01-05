@@ -138,7 +138,7 @@ public class BoardController extends BaseController {
         if(type == 0 ) { // 최신순 조회
             boardList = Optional.ofNullable(boardService.BoardsNewestReadService()) // boardService.BoardsReadService가 null 이면 orElseThrow 인자가 호출됨
                     .orElseThrow(BoardListSelectFailedException::new);
-        } else { // 인기순 조회
+        } else { // 인기순 조회 -> 아직 사용안함.
             boardList = Optional.ofNullable(boardService.BoardsPopularReadService())
                     .orElseThrow(BoardListSelectFailedException::new);
         }
