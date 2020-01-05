@@ -50,8 +50,8 @@ public class BoardService {
     }
 
     //게시물 조회
-    public ArrayList<Board> BoardsReadService( ) {
-        ArrayList<Board> boards = null;
+    public List<Board> BoardsReadService( ) {
+        List<Board> boards = null;
         try {
             boards = boardDao.BoardsReadRepo();
         } catch (Exception e) {
@@ -151,6 +151,7 @@ public class BoardService {
     public String BoardCommentService(Board comment) {
 
         String bsn = UUID.randomUUID().toString();
+        
         //부모의 group_id, group_seq, group_depth
         int parent_group_seq = comment.getGroup_seq();
         int parnet_group_depth = comment.getGroup_depth();
@@ -219,8 +220,6 @@ public class BoardService {
 
         ObjectListing objectListing = amazonS3Client.listObjects(bucket);
         for(S3ObjectSummary os : objectListing.getObjectSummaries()) {
-
-            logger.info("name : " + os.getKey());
 
             String[ ] folder = os.getKey().split("/");
 

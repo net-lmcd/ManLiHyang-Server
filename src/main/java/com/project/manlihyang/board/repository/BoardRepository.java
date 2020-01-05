@@ -13,6 +13,10 @@ public interface BoardRepository {
 
     //기능별로 Repo 분리?? board, comment, likes
 
+    //특정 유저가 쓴 글 모두 조회 ( 전부 조회해야되나?? 썸네일만 조회하면 되지 않음??)
+    @Select ("SELECT * from board where usn = #{usn}")
+    ArrayList<Board> BoardReadUserRepo( );
+
     //게시물 전체 조회 ( group_seq = 1 인 경우만 게시물이고 1보다 클 경우는 게시물의 댓글을 의미한다. )
     @Select("SELECT * from board where group_seq = 0")
     ArrayList<Board> BoardsReadRepo( );

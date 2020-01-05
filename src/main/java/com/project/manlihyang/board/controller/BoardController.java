@@ -50,6 +50,7 @@ public class BoardController {
     public Map<String, String> bg_img_list(@PathVariable("service-code") int code) {
 
         logger.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBackgroundListAPI() ");
+        boardService.filterCode(code);
         return boardService.BoardBackGroundImgListService("bg-img");
     }
 
@@ -57,6 +58,7 @@ public class BoardController {
     @GetMapping("/{service-code}/book-img")
     public Map<String, String> book_img_list(@PathVariable("service-code") int code) {
         logger.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBookListAPI() ");
+        boardService.filterCode(code);
         return boardService.BoardBookImgListService("book-img");
     }
 
@@ -93,7 +95,7 @@ public class BoardController {
 
     //게시물 조회 ( 전체 )
     @GetMapping("/{service-code}")
-    public ArrayList<Board> board_read(@PathVariable("service-code") int code) {
+    public List<Board> board_read(@PathVariable("service-code") int code) {
         logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI()");
 
         boardService.filterCode(code);
