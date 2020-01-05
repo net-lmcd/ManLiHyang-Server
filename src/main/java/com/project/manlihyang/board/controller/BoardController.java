@@ -68,9 +68,7 @@ public class BoardController extends BaseController {
     @GetMapping("/Kakao/book")
     public ResponseEntity<ResponseKakaoBook> book_test (@RequestParam("book_name") String name,
                                                         @RequestParam("page") int page) {
-
-        logger.info("book test !");
-
+        
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", kakaoOpenApiAuthorization);
         //kakaoBookHeader.add("Authorization", kakaoOpenApiAuthorization);
