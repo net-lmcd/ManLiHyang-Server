@@ -1,43 +1,36 @@
 package com.project.manlihyang.board.controller;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.Response;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.project.manlihyang.BaseController;
 import com.project.manlihyang.board.BoardConst;
 import com.project.manlihyang.board.domain.Board;
+import com.project.manlihyang.board.domain.ResponseKakaoBook;
 import com.project.manlihyang.board.domain.LikeMeta;
 import com.project.manlihyang.board.exception.BoardListSelectFailedException;
 import com.project.manlihyang.board.exception.NoBoardCommentException;
 import com.project.manlihyang.board.exception.NoBoardException;
 import com.project.manlihyang.board.exception.NoBoardLikeException;
 import com.project.manlihyang.board.service.BoardService;
-import com.project.manlihyang.common.ResponseData;
-import com.project.manlihyang.user.exception.NoMemberException;
-import com.project.manlihyang.util.Const;
-import jdk.nashorn.internal.objects.annotations.Getter;
-import net.bytebuddy.build.Plugin;
 import org.apache.commons.io.FileUtils;
-import org.apache.ibatis.annotations.Delete;
+import org.apache.http.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 @RestController
@@ -53,8 +46,37 @@ public class BoardController extends BaseController {
     @Autowired
     AmazonS3 amazonS3Client;
 
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Autowired @Qualifier("kakao-book-header")
+     private HttpHeaders kakaoBookHeader;
+
+    //aws s3 bucket 이름
     @Value("${spring.aws.bucket}")
     private String bucket;
+
+    //kakao book api url
+    @Value("${kakao.openapi.book.url}")
+    private String kakaoOpenApiBookUrl;
+
+    //kakao book api rest api key
+    @Value("${kakao.openapi.authorization}")
+    private String kakaoOpenApiAuthorization;
+
+    // Kaka book api 테스트
+    @GetMapping("/Kakao/book")
+    public ResponseEntity<ResponseKakaoBook> book_test (@RequestParam("book_name") String name,
+                                                        @RequestParam("page") int page) {
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", kakaoOpenApiAuthorization);
+        //kakaoBookHeader.add("Authorization", kakaoOpenApiAuthorization);
+        String resourceBookUrl = kakaoOpenApiBookUrl + "?query=" + name + "&page=" + page;
+
+        ResponseEntity<ResponseKakaoBook> response = restTemplate.exchange(resourceBookUrl, HttpMethod.GET, new HttpEntity(headers), ResponseKakaoBook.class);
+        return response;
+    }
 
     //배경 이미지 목록 ( default ) -> s3의 bg-img 폴더
     @GetMapping("/{service-code}/bg-img")
