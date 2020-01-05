@@ -13,13 +13,18 @@ public interface BoardRepository {
 
     //기능별로 Repo 분리?? board, comment, likes
 
-    //특정 유저가 쓴 글 모두 조회 ( 전부 조회해야되나?? 썸네일만 조회하면 되지 않음??)
+    //특정 유저가 쓴 글 모두 조회 ( 전부 조회해야되나?? 썸네일만 조회하면 되지 않음??) -> 자기 글 보관함
     @Select ("SELECT * from board where usn = #{usn}")
     ArrayList<Board> BoardReadUserRepo( );
 
-    //게시물 전체 조회 ( group_seq = 1 인 경우만 게시물이고 1보다 클 경우는 게시물의 댓글을 의미한다. )
-    @Select("SELECT * from board where group_seq = 0")
-    List<Board> BoardsReadRepo( );
+    //게시물 전체 조회 - 최신순( group_seq = 1 인 경우만 게시물이고 1보다 클 경우는 게시물의 댓글을 의미한다. )
+    @Select("SELECT * from board where group_seq = 0 order by created_time desc")
+    List<Board> BoardsReadNewestRepo( );
+
+    //게시물 전체 조회 - 인기순
+    // select board_id from likes group by board_id order by count(board_id) desc;
+    @Select("SELECT * from board where group_seq = 0 ")
+    List<Board> BoardsReadPopularRepo( );
 
     //게시물 상세조회
     @Select("SELECT * from board where bsn = #{bsn}")

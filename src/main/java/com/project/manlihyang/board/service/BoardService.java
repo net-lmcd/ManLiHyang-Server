@@ -52,11 +52,22 @@ public class BoardService {
     }
 
 
-    //게시물 전체 조회
-    public List<Board> BoardsReadService( ) {
+    //게시물 전체 조회 ( 최신순 )
+    public List<Board> BoardsNewestReadService( ) {
         List<Board> boards = null;
         try {
-            boards = boardDao.BoardsReadRepo();
+            boards = boardDao.BoardsReadNewestRepo();
+        } catch (Exception e) {
+            logger.error("[BoardService] BoardsReadService() ERROR : " + e.getMessage());
+        }
+        return boards;
+    }
+
+    //게시물 전체 조회 ( 인기순 )
+    public List<Board> BoardsPopularReadService( ) {
+        List<Board> boards = null;
+        try {
+            boards = boardDao.BoardsReadPopularRepo();
         } catch (Exception e) {
             logger.error("[BoardService] BoardsReadService() ERROR : " + e.getMessage());
         }

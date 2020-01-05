@@ -127,13 +127,21 @@ public class BoardController extends BaseController {
     }
 
     //게시물 조회 ( 전체 )
-    @GetMapping("/{service-code}")
-    public ResponseEntity<List<Board>> board_read(@PathVariable("service-code") int code) {
+    @GetMapping("/{service-code}/{type}")
+    public ResponseEntity<List<Board>> board_read(@PathVariable("service-code") int code,
+                                                  @PathVariable("type") int type) { // type : 0 (최신순), type : 1 (인기순)
         logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI()");
 
         boardService.filterBoardCode(code);
-        List<Board> boardList = Optional.ofNullable(boardService.BoardsReadService()) // boardService.BoardsReadService가 null 이면 orElseThrow 인자가 호출됨
-                .orElseThrow(BoardListSelectFailedException::new);
+        List<Board> boardList = null;
+
+        if(type == 0 ) { // 최신순 조회
+            boardList = Optional.ofNullable(boardService.BoardsNewestReadService()) // boardService.BoardsReadService가 null 이면 orElseThrow 인자가 호출됨
+                    .orElseThrow(BoardListSelectFailedException::new);
+        } else { // 인기순 조회
+            boardList = Optional.ofNullable(boardService.BoardsPopularReadService())
+                    .orElseThrow(BoardListSelectFailedException::new);
+        }
         return ResponseEntity.ok(boardList);
     }
 
