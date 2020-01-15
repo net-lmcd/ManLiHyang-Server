@@ -160,26 +160,41 @@ public class BoardService {
         return "-1";
     };
 
-    //좋아요
-    public String BoardCheckLikeService(String board_id, String liker_id) {
+    //좋아요 -> 트랜잭션 처리 필요
+    public String BoardCheckLikeService(String board_id, String liker_id, int like_cnt) {
 
-        try {
+        try { // like 테이블에 컬럼 추가
         boardDao.BoardCheckLikeRepo(board_id, liker_id);
-        return board_id;
-    } catch (Exception e) {
+
+        } catch (Exception e) {
         logger.error("[BoardService] BoardCheckLikes() ERROR : " + e.getMessage());
-    }
+        return "-1";
+     }
+
+        try { // board 테이블의 like_cnt 증가
+            boardDao.BoardIncreseLikeRepo(board_id, like_cnt);
+            return board_id;
+        } catch (Exception e) {
+            logger.error("[BoardService] BoardIncreseLike() ERROR : " + e.getMessage());
+        }
         return "-1";
     }
 
     //좋아요 취소
-    public String BoardCancelLikeService(String board_id, String liker_id) {
+    public String BoardCancelLikeService(String board_id, String liker_id, int like_cnt) {
 
-        try {
+        try { // like 테이블의 컬럼 삭제
             boardDao.BoardCancelLikeRepo(board_id, liker_id);
-            return board_id;
         } catch (Exception e ) {
             logger.error("[BoardService] BoardCancelLikes() ERROR : " + e.getMessage());
+            return "-1";
+        }
+
+        try { // board 테이블의 like_cnt 감
+            boardDao.BoardDecreseLikeRepo(board_id, like_cnt);
+            return board_id;
+        } catch (Exception e) {
+            logger.error("[BoardService] BoardDecreseLike() ERROR : " + e.getMessage());
         }
         return "-1";
     }

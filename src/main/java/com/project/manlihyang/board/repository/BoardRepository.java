@@ -49,12 +49,18 @@ public interface BoardRepository {
     @Select("SELECT img_name from board where group_id = #{bsn} && bsn = #{bsn}")
     String BoardImgNameRepo(String bsn);
 
-    //게시물 좋아요 누름"
+    //게시물 좋아요 누름 ( -> 좋아요 테이블 컬럼 추가 및 게시물 테이블 좋아요 갯수 증가 )
     @Insert("Insert likes (board_id, liker_id) VALUES(#{board_id}, #{liker_id})")
     void BoardCheckLikeRepo(String board_id, String liker_id);
-    //게시물 좋아요 취소
+    @Update("UPDATE board set like_cnt = ${like_cnt} + 1 where bsn = #{board_id}")
+    void BoardIncreseLikeRepo(String board_id, int like_cnt);
+
+    //게시물 좋아요 취소 ( -> 좋아요 테이블 컬럼 삭제 및 게시물 테이블 좋아요 갯수 감소 )
     @Delete("Delete from likes where board_id = #{board_id} && liker_id = #{liker_id}")
     void BoardCancelLikeRepo(String board_id, String liker_id);
+    @Update("UPDATE board set like_cnt = ${like_cnt} - 1 where bsn = #{board_id}")
+    void BoardDecreseLikeRepo(String board_id, int like_cnt);
+
     //게시물 좋아요 횟수 및 누른 사람 리스트
     @Select("Select liker_id from likes where board_id = #{board_id}")
     List<String> BoardDetailLikeRepo(String board_id);

@@ -65,10 +65,14 @@ public class BoardController extends BaseController {
     private String kakaoOpenApiAuthorization;
 
     // Kaka book api 테스트
-    @GetMapping("/Kakao/book")
-    public ResponseEntity<ResponseKakaoBook> book_test (@RequestParam("book_name") String name,
+    @GetMapping("/{service-code}/Kakao/book")
+    public ResponseEntity<ResponseKakaoBook> book_test (@PathVariable("service-code") int code,
+                                                        @RequestParam("book_name") String name,
                                                         @RequestParam("page") int page) {
-        
+
+        logger.info("[GET] /board/Kakao/book" + "/" + code);
+        boardService.filterBoardCode(code);
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", kakaoOpenApiAuthorization);
         //kakaoBookHeader.add("Authorization", kakaoOpenApiAuthorization);
@@ -126,22 +130,16 @@ public class BoardController extends BaseController {
         }
     }
 
-    //게시물 조회 ( 전체 )
-    @GetMapping("/{service-code}/{type}")
-    public ResponseEntity<List<Board>> board_read(@PathVariable("service-code") int code,
-                                                  @PathVariable("type") int type) { // type : 0 (최신순), type : 1 (인기순)
+    //게시물 조회 ( 전체 ) - 최신
+    @GetMapping("/{service-code}")
+    public ResponseEntity<List<Board>> board_read(@PathVariable("service-code") int code) {
         logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI()");
 
         boardService.filterBoardCode(code);
         List<Board> boardList = null;
 
-        if(type == 0 ) { // 최신순 조회
-            boardList = Optional.ofNullable(boardService.BoardsNewestReadService()) // boardService.BoardsReadService가 null 이면 orElseThrow 인자가 호출됨
-                    .orElseThrow(BoardListSelectFailedException::new);
-        } else { // 인기순 조회 -> 아직 사용안함.
-            boardList = Optional.ofNullable(boardService.BoardsPopularReadService())
-                    .orElseThrow(BoardListSelectFailedException::new);
-        }
+        boardList = Optional.ofNullable(boardService.BoardsNewestReadService()) // boardService.BoardsReadService가 null 이면 orElseThrow 인자가 호출됨
+                .orElseThrow(BoardListSelectFailedException::new);
         return ResponseEntity.ok(boardList);
     }
 
@@ -197,28 +195,28 @@ public class BoardController extends BaseController {
 
     //게시물 좋아요 누르기  liker_id는 현제 세션의 기본키값
     // 유저가 해당 게시물을 눌른 상태면 취소되게, 안눌른 상태면 눌리게 해야됨 ( client에서 처리 )
-    @PostMapping("/{service-code}/like/{board_id}/{liker_id}")
+    @PostMapping("/{service-code}/like/{board_id}/{liker_id}/{like_cnt}")
     public ResponseEntity<?> board_likes(@PathVariable("service-code") int code,
                            @PathVariable("board_id") String board_id,
-                           @PathVariable("liker_id") String liker_id) {
+                           @PathVariable("liker_id") String liker_id, @PathVariable("like_cnt") int like_cnt) {
 
         logger.info("[POST] /board/like" + "/" + code + "/" + "BoardCheckLikeAPI()");
         boardService.filterBoardCode(code);
 
-        String bsn = boardService.BoardCheckLikeService(board_id, liker_id);
+        String bsn = boardService.BoardCheckLikeService(board_id, liker_id, like_cnt);
         return bsn != "-1"
                 ? ResponseEntity.status(200).body(successResponseBoard(bsn))
                 : ResponseEntity.status(500).body(failedResponseBoard(BoardConst.FAILED_BOARD_LIKE));
     }
 
     //게시물 좋아요 취소
-    @DeleteMapping("/{service-code}/like/{board_id}/{liker_id}")
+    @DeleteMapping("/{service-code}/like/{board_id}/{liker_id}/{like_cnt}")
     public ResponseEntity<?> board_like_cancel(@PathVariable("service-code") int code,
                                  @PathVariable("board_id") String board_id,
-                                 @PathVariable("liker_id") String liker_id) {
+                                 @PathVariable("liker_id") String liker_id, @PathVariable("like_cnt") int like_cnt) {
         logger.info("[DELETE] /board/like" + "/" + code + "/" + "BoardCancelLikeAPI()");
         boardService.filterBoardCode(code);
-        String bsn = boardService.BoardCancelLikeService(board_id, liker_id);
+        String bsn = boardService.BoardCancelLikeService(board_id, liker_id, like_cnt);
         return bsn != "-1"
                 ? ResponseEntity.status(200).body(successResponseBoard(bsn))
                 : ResponseEntity.status(500).body(failedResponseBoard(BoardConst.FAILED_BOARD_CANCEL_LIKE));
