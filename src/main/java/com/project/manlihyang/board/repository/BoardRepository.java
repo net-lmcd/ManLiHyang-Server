@@ -38,7 +38,7 @@ public interface BoardRepository {
     void BoardCreateRepo(Board board);
 
     //게시물 수정
-    @Update("UPDATE board set title=#{title}, content=#{content}, updated_time=#{updated_time} where bsn=#{bsn}")
+    @Update("UPDATE board set title=#{title}, content=#{content}, bg_img_url=#{bg_img_url}, updated_time=#{updated_time} where bsn=#{bsn}")
     void BoardUpdateRepo(Board board);
 
     // 게시물 삭제 -> 게시물 삭제할때 해당 게시물의 댓글 및 s3에 있는 이미지도 삭제해줘야 함 !!
