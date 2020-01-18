@@ -13,9 +13,21 @@ public interface BoardRepository {
 
     //기능별로 Repo 분리?? board, comment, likes
 
-    //게시물 전체 조회 ( group_seq = 1 인 경우만 게시물이고 1보다 클 경우는 게시물의 댓글을 의미한다. )
-    @Select("SELECT * from board where group_seq = 0")
-    List<Board> BoardsReadRepo( );
+    //특정 유저가 쓴 글 모두 조회 ( 전부 조회해야되나?? 썸네일만 조회하면 되지 않음??) -> 자기 글 보관함
+    @Select ("SELECT * from board where usn = #{usn}")
+    ArrayList<Board> BoardReadUserRepo( );
+
+    //게시물 전체 조회 - 최신순( group_seq = 1 인 경우만 게시물이고 1보다 클 경우는 게시물의 댓글을 의미한다. )
+    @Select("SELECT * from board where group_seq = 0 order by created_time desc")
+    List<Board> BoardsReadNewestRepo( );
+
+    //게시물 전체 조회 - 인기순 -> 아직 사용안함
+    // select board_id from likes group by board_id order by count(board_id) desc;
+    /* 인기순 정렬로 조회를 하기 위해서는 기본적으로 board 테이블에 like 컬럼을 추가해주고 likes 테이블에 컬럼이 추가, 삭제될때
+     board 테이블의 like 값도 바뀌는 구조가 되어야 한다.
+     */
+    @Select("SELECT * from board where group_seq = 0 ")
+    List<Board> BoardsReadPopularRepo( );
 
     //게시물 상세조회
     @Select("SELECT * from board where bsn = #{bsn}")
@@ -26,7 +38,7 @@ public interface BoardRepository {
     void BoardCreateRepo(Board board);
 
     //게시물 수정
-    @Update("UPDATE board set title=#{title}, content=#{content}, updated_time=#{updated_time} where bsn=#{bsn}")
+    @Update("UPDATE board set title=#{title}, content=#{content}, bg_img_url=#{bg_img_url}, updated_time=#{updated_time} where bsn=#{bsn}")
     void BoardUpdateRepo(Board board);
 
     // 게시물 삭제 -> 게시물 삭제할때 해당 게시물의 댓글 및 s3에 있는 이미지도 삭제해줘야 함 !!
@@ -37,12 +49,18 @@ public interface BoardRepository {
     @Select("SELECT img_name from board where group_id = #{bsn} && bsn = #{bsn}")
     String BoardImgNameRepo(String bsn);
 
-    //게시물 좋아요 누름"
+    //게시물 좋아요 누름 ( -> 좋아요 테이블 컬럼 추가 및 게시물 테이블 좋아요 갯수 증가 )
     @Insert("Insert likes (board_id, liker_id) VALUES(#{board_id}, #{liker_id})")
     void BoardCheckLikeRepo(String board_id, String liker_id);
-    //게시물 좋아요 취소
+    @Update("UPDATE board set like_cnt = ${like_cnt} + 1 where bsn = #{board_id}")
+    void BoardIncreseLikeRepo(String board_id, int like_cnt);
+
+    //게시물 좋아요 취소 ( -> 좋아요 테이블 컬럼 삭제 및 게시물 테이블 좋아요 갯수 감소 )
     @Delete("Delete from likes where board_id = #{board_id} && liker_id = #{liker_id}")
     void BoardCancelLikeRepo(String board_id, String liker_id);
+    @Update("UPDATE board set like_cnt = ${like_cnt} - 1 where bsn = #{board_id}")
+    void BoardDecreseLikeRepo(String board_id, int like_cnt);
+
     //게시물 좋아요 횟수 및 누른 사람 리스트
     @Select("Select liker_id from likes where board_id = #{board_id}")
     List<String> BoardDetailLikeRepo(String board_id);

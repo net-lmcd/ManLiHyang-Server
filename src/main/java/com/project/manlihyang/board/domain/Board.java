@@ -15,6 +15,7 @@ public class Board {
     String bsn; // 게시물 식별자
     String writer_id; // 작성자 이름
     String title; // 게시물 제목
+    int like_cnt; // 게시물 좋아요 갯수
     String content; // 게시물 내용
     String img_url; // 이미지 경로
     String img_name; // s3에 저장될 이미지 이름

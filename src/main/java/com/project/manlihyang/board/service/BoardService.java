@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.*;
 import com.project.manlihyang.board.controller.BoardController;
 import com.project.manlihyang.board.domain.Board;
 import com.project.manlihyang.board.BoardConst;
+import com.project.manlihyang.board.exception.BoardLIkeFailedException;
 import com.project.manlihyang.board.repository.BoardRepository;
 import com.project.manlihyang.util.ApiHelper;
 import com.project.manlihyang.util.Validator;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -51,11 +54,23 @@ public class BoardService {
         return s3_file_list(type);
     }
 
-    //게시물 전체 조회
-    public List<Board> BoardsReadService( ) {
+
+    //게시물 전체 조회 ( 최신순 )
+    public List<Board> BoardsNewestReadService( ) {
         List<Board> boards = null;
         try {
-            boards = boardDao.BoardsReadRepo();
+            boards = boardDao.BoardsReadNewestRepo();
+        } catch (Exception e) {
+            logger.error("[BoardService] BoardsReadService() ERROR : " + e.getMessage());
+        }
+        return boards;
+    }
+
+    //게시물 전체 조회 ( 인기순 )
+    public List<Board> BoardsPopularReadService( ) {
+        List<Board> boards = null;
+        try {
+            boards = boardDao.BoardsReadPopularRepo();
         } catch (Exception e) {
             logger.error("[BoardService] BoardsReadService() ERROR : " + e.getMessage());
         }
@@ -73,7 +88,7 @@ public class BoardService {
         return board;
     }
 
-    //게시물 생성
+    //게시물 생성 -> 게시물 생성에 대해서는 트랜젝션 처리를 어떻게 해줄것인가? ( s3에 파일업로드 후 게시물 업로드..)
     public String BoardCreateService(Board board, MultipartFile file) {
 
         String bsn = UUID.randomUUID().toString();
@@ -121,7 +136,7 @@ public class BoardService {
         return "-1";
     };
 
-    //게시물 삭제
+    //게시물 삭제 ( 게시물 삭제도 트랜잭션 처리 필요..)
     public String BoardDeleteService(String bsn) {
         //해당 bsn의 s3 이미지 삭제. ( 인자로 받은 bsn 값을 갖는 게시물의 img_name 필요 )
         String filename = null;
@@ -148,26 +163,42 @@ public class BoardService {
         return "-1";
     };
 
-    //좋아요
-    public String BoardCheckLikeService(String board_id, String liker_id) {
+    //좋아요 -> 트랜잭션 처리 필요
+    @Transactional(rollbackFor = Exception.class)
+    public String BoardCheckLikeService(String board_id, String liker_id, int like_cnt) {
 
-        try {
+        try { // like 테이블에 컬럼 추가
         boardDao.BoardCheckLikeRepo(board_id, liker_id);
-        return board_id;
-    } catch (Exception e) {
+        } catch (Exception e) {
         logger.error("[BoardService] BoardCheckLikes() ERROR : " + e.getMessage());
-    }
+        return "-1";
+     }
+
+        try { // board 테이블의 like_cnt 증가
+            boardDao.BoardIncreseLikeRepo(board_id, like_cnt);
+            return board_id;
+        } catch (Exception e) {
+            logger.error("[BoardService] BoardIncreseLike() ERROR : " + e.getMessage());
+        }
         return "-1";
     }
 
     //좋아요 취소
-    public String BoardCancelLikeService(String board_id, String liker_id) {
+    @Transactional(rollbackFor = Exception.class)
+    public String BoardCancelLikeService(String board_id, String liker_id, int like_cnt) {
 
-        try {
+        try { // like 테이블의 컬럼 삭제
             boardDao.BoardCancelLikeRepo(board_id, liker_id);
-            return board_id;
         } catch (Exception e ) {
             logger.error("[BoardService] BoardCancelLikes() ERROR : " + e.getMessage());
+            return "-1";
+        }
+
+        try { // board 테이블의 like_cnt 감
+            boardDao.BoardDecreseLikeRepo(board_id, like_cnt);
+            return board_id;
+        } catch (Exception e) {
+            logger.error("[BoardService] BoardDecreseLike() ERROR : " + e.getMessage());
         }
         return "-1";
     }
@@ -206,9 +237,11 @@ public class BoardService {
     }
 
     //댓글 달기
+    @Transactional(rollbackFor = Exception.class)
     public String BoardCommentService(Board comment) {
 
         String bsn = UUID.randomUUID().toString();
+        
         //부모의 group_id, group_seq, group_depth
         int parent_group_seq = comment.getGroup_seq();
         int parnet_group_depth = comment.getGroup_depth();
@@ -283,8 +316,6 @@ public class BoardService {
 
         ObjectListing objectListing = amazonS3Client.listObjects(bucket);
         for(S3ObjectSummary os : objectListing.getObjectSummaries()) {
-
-            logger.info("name : " + os.getKey());
 
             String[ ] folder = os.getKey().split("/");
 
