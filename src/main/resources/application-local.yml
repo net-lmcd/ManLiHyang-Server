@@ -6,3 +6,13 @@ spring:
     url: jdbc:mariadb://localhost:3306/ManLiHyang
     username: root
     password: passwd
+aws:
+  access-key: key
+  secret-key: passwd
+  region: ap-northeast-2
+  bucket: manli-hang-s3
+kakao:
+  openapi:
+    book:
+      url: https://dapi.kakao.com/v3/search/book
+      authorization: 7459c9fe8a20e0ed88ca9687b22dcbcb
