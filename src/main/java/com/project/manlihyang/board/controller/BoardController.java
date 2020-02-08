@@ -12,12 +12,9 @@ import com.project.manlihyang.board.exception.NoBoardCommentException;
 import com.project.manlihyang.board.exception.NoBoardException;
 import com.project.manlihyang.board.exception.NoBoardLikeException;
 import com.project.manlihyang.board.service.BoardService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.Header;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,47 +26,35 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/board")
 @CrossOrigin(origins = "*")
 public class BoardController extends BaseController {
-
-    private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
-
-    @Autowired
-    private BoardService boardService;
-
-    @Autowired
-    AmazonS3 amazonS3Client;
-
-    @Autowired
-    RestTemplate restTemplate;
-
-    @Autowired @Qualifier("kakao-book-header")
-     private HttpHeaders kakaoBookHeader;
-
-    //aws s3 bucket 이름
     @Value("${spring.aws.bucket}")
     private String bucket;
-
-    //kakao book api url
     @Value("${kakao.openapi.book.url}")
     private String kakaoOpenApiBookUrl;
-
-    //kakao book api rest api key
     @Value("${kakao.openapi.authorization}")
     private String kakaoOpenApiAuthorization;
+
+    private final BoardService boardService;
+    private final AmazonS3 amazonS3Client;
+    private final RestTemplate restTemplate;
+    public BoardController(BoardService boardService, AmazonS3 amazonS3Client, RestTemplate restTemplate) {
+        this.boardService = boardService;
+        this.amazonS3Client = amazonS3Client;
+        this.restTemplate = restTemplate;
+    }
 
     // Kaka book api 테스트
     @GetMapping("/Kakao/book")
     public ResponseEntity<ResponseKakaoBook> book_test (@RequestParam("book_name") String name,
                                                         @RequestParam("page") int page) {
 
-        logger.info("book test !");
+        log.info("book test !");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", kakaoOpenApiAuthorization);
@@ -84,14 +69,14 @@ public class BoardController extends BaseController {
     @GetMapping("/{service-code}/bg-img")
     public Map<String, String> bg_img_list(@PathVariable("service-code") int code) {
 
-        logger.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBackgroundListAPI() ");
+        log.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBackgroundListAPI() ");
         return boardService.BoardBackGroundImgListService("bg-img");
     }
 
     // 책 이미지 목록 ( default ) -> s3의 book-img 폴더
     @GetMapping("/{service-code}/book-img")
     public Map<String, String> book_img_list(@PathVariable("service-code") int code) {
-        logger.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBookListAPI() ");
+        log.info("[GET] /board/bg-img" + "/" + code + "/" + "BoardBookListAPI() ");
         return boardService.BoardBookImgListService("book-img");
     }
 
@@ -120,16 +105,16 @@ public class BoardController extends BaseController {
         //bucket 안에 있는 파일리스트
         ObjectListing objectListing = amazonS3Client.listObjects(bucketName);
         for(S3ObjectSummary os : objectListing.getObjectSummaries()) {
-            logger.info(os.getKey());
-            logger.info(String.valueOf(os.getSize()));
-            logger.info(amazonS3Client.getUrl(bucket, os.getKey()).toString());
+            log.info(os.getKey());
+            log.info(String.valueOf(os.getSize()));
+            log.info(amazonS3Client.getUrl(bucket, os.getKey()).toString());
         }
     }
 
     //게시물 조회 ( 전체 )
     @GetMapping("/{service-code}")
     public ResponseEntity<List<Board>> board_read(@PathVariable("service-code") int code) {
-        logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI()");
+        log.info("[GET] /board" + "/" + code + "/" + "ReadBoardsAPI()");
 
         boardService.filterBoardCode(code);
         List<Board> boardList = Optional.ofNullable(boardService.BoardsReadService()) // boardService.BoardsReadService가 null 이면 orElseThrow 인자가 호출됨
@@ -141,7 +126,7 @@ public class BoardController extends BaseController {
     @GetMapping("/{service-code}/{bsn}")
     public ResponseEntity<Board> board_read_detail(@PathVariable("service-code") int code,
                                       @PathVariable String bsn){
-        logger.info("[GET] /board" + "/" + code + "/" + "ReadBoardDetailAPI() ");
+        log.info("[GET] /board" + "/" + code + "/" + "ReadBoardDetailAPI() ");
         boardService.filterBoardCode(code);
         Board board = Optional.ofNullable(boardService.BoardReadDetailService(bsn))
                 .orElseThrow(NoBoardException::new);
@@ -152,7 +137,7 @@ public class BoardController extends BaseController {
     @PostMapping("/{service-code}") // 성공하면 bsn 리턴해줘야 해야됨....
     public ResponseEntity<?> board_insert(Board board, MultipartFile file,
                                @PathVariable("service-code") int code) {
-        logger.info("[POST] /board" + "/" + code + "/" + "CreateBoardAPI() ");
+        log.info("[POST] /board" + "/" + code + "/" + "CreateBoardAPI() ");
         boardService.filterBoardCode(code);
         String bsn = boardService.BoardCreateService(board, file);
         return bsn != "-1"
@@ -165,7 +150,7 @@ public class BoardController extends BaseController {
     public ResponseEntity<?> board_update(Board board,
         @PathVariable("service-code") int code) {
 
-            logger.info("[PUT] /board" + "/" + code + "/" + "UpdateBoardAPI() ");
+        log.info("[PUT] /board" + "/" + code + "/" + "UpdateBoardAPI() ");
             boardService.filterBoardCode(code);
             String bsn = boardService.BoardUpdateService(board);
             return bsn != "-1"
@@ -178,7 +163,7 @@ public class BoardController extends BaseController {
     public ResponseEntity<?> board_delete(@PathVariable("service-code") int code,
                                                            @PathVariable String bsn) {
 
-        logger.info("[POST] /board" + "/" + code + "/" + "DeleteBoardAPI() ");
+        log.info("[POST] /board" + "/" + code + "/" + "DeleteBoardAPI() ");
         boardService.filterBoardCode(code);
         String deletedBsn = boardService.BoardDeleteService(bsn);
 
@@ -194,7 +179,7 @@ public class BoardController extends BaseController {
                            @PathVariable("board_id") String board_id,
                            @PathVariable("liker_id") String liker_id) {
 
-        logger.info("[POST] /board/like" + "/" + code + "/" + "BoardCheckLikeAPI()");
+        log.info("[POST] /board/like" + "/" + code + "/" + "BoardCheckLikeAPI()");
         boardService.filterBoardCode(code);
 
         String bsn = boardService.BoardCheckLikeService(board_id, liker_id);
@@ -208,7 +193,7 @@ public class BoardController extends BaseController {
     public ResponseEntity<?> board_like_cancel(@PathVariable("service-code") int code,
                                  @PathVariable("board_id") String board_id,
                                  @PathVariable("liker_id") String liker_id) {
-        logger.info("[DELETE] /board/like" + "/" + code + "/" + "BoardCancelLikeAPI()");
+        log.info("[DELETE] /board/like" + "/" + code + "/" + "BoardCancelLikeAPI()");
         boardService.filterBoardCode(code);
         String bsn = boardService.BoardCancelLikeService(board_id, liker_id);
         return bsn != "-1"
@@ -221,7 +206,7 @@ public class BoardController extends BaseController {
     public ResponseEntity<?> board_like_detail(@PathVariable("service-code") int code,
                                       @PathVariable("board_id") String board_id){
 
-        logger.info("[GET] /board/like" + "/" + code + "/" + "BoardLikeDetailAPI()");
+        log.info("[GET] /board/like" + "/" + code + "/" + "BoardLikeDetailAPI()");
         boardService.filterBoardCode(code);
 
         List<String> likerList = Optional.ofNullable(boardService.BoardDetailLikeService(board_id))
@@ -240,7 +225,7 @@ public class BoardController extends BaseController {
                              @PathVariable("bsn") String bsn,
                              @PathVariable("report_cnt") int report_cnt) {
 
-        logger.info("[PUT] /board/report" + "/" + code + "/" + "BoardReportAPI()");
+        log.info("[PUT] /board/report" + "/" + code + "/" + "BoardReportAPI()");
         boardService.filterBoardCode(code);
 
         //해당 게시물 삭제 ( 5번 이상 신고된 게시물 삭제 )
@@ -262,7 +247,7 @@ public class BoardController extends BaseController {
     public ResponseEntity<?> board_comment_read(@PathVariable("service-code") int code,
                                                @PathVariable("bsn") String bsn) {
 
-        logger.info("[GET] /board/comment" + "/" + code + "/" + "BoardCommentReadAPI()");
+        log.info("[GET] /board/comment" + "/" + code + "/" + "BoardCommentReadAPI()");
         boardService.filterBoardCode(code);
 
         List<Board> comment_list = Optional.ofNullable(boardService.BoardCommentListService(bsn))
@@ -275,7 +260,7 @@ public class BoardController extends BaseController {
     public ResponseEntity<?> board_comment(@PathVariable("service-code") int code,
                               Board comment) {  // 뷰모의 group_seq, group_depth를 입력해줘야함. 결국, 댓글이 들어갈 자리는 부모 seq + 1, 부모 depth + 1 이다.
 
-        logger.info("[POST] /board/comment" + "/" + code + "/" + "BoardCommentCreateAPI()");
+        log.info("[POST] /board/comment" + "/" + code + "/" + "BoardCommentCreateAPI()");
         boardService.filterBoardCode(code);
 
         String bsn = boardService.BoardCommentService(comment);
@@ -288,7 +273,7 @@ public class BoardController extends BaseController {
     @PutMapping("/{service-code}/comment")
     public ResponseEntity<?> board_comment_update(@PathVariable("service-code") int code,
                                                                      Board comment) {
-        logger.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentUpdateAPI()");
+        log.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentUpdateAPI()");
         boardService.filterBoardCode(code);
         String bsn = boardService.BoardCommentUpdateService(comment);
         return bsn != "-1"
@@ -300,7 +285,7 @@ public class BoardController extends BaseController {
     @PutMapping("/{service-code}/comment/{bsn}")
     public ResponseEntity<?> board_comment_delete(@PathVariable("service-code") int code,
                                                                      @PathVariable("bsn") String bsn) {
-        logger.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentDeleteAPI()");
+        log.info("[PUT] /board/comment" + "/" + code + "/" + "BoardCommentDeleteAPI()");
         boardService.filterBoardCode(code);
         return boardService.BoardCommentDeleteService(bsn) == true
                 ? ResponseEntity.status(200).body(successResponseBoard(bsn))
